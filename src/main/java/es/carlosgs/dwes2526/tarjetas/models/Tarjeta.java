@@ -16,7 +16,7 @@ public class Tarjeta {
   private final String titular;
   private final Double saldo;
 
-  private final LocalDateTime createdAt = LocalDateTime.now();
-  private final LocalDateTime updatedAt = LocalDateTime.now();
-  private final UUID uuid = UUID.randomUUID();
+  private final LocalDateTime createdAt;
+  private final LocalDateTime updatedAt;
+  private final UUID uuid;
 }
