@@ -1,5 +1,6 @@
 package es.carlosgs.dwes2526.tarjetas.services;
 
+import es.carlosgs.dwes2526.tarjetas.exceptions.TarjetaNotFoundException;
 import es.carlosgs.dwes2526.tarjetas.models.Tarjeta;
 import es.carlosgs.dwes2526.tarjetas.repositories.TarjetasRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -45,14 +46,14 @@ public class TarjetasServiceImpl implements TarjetasService {
   @Override
   public Tarjeta findById(Long id) {
     log.info("Buscando tarjeta por id {}", id);
-    return tarjetasRepository.findById(id).orElse(null);
+    return tarjetasRepository.findById(id).orElseThrow(()-> new TarjetaNotFoundException(id));
   }
 
   @Override
   public Tarjeta findbyUuid(String uuid) {
     log.info("Buscando tarjeta por uuid: " + uuid);
       var myUUID = UUID.fromString(uuid);
-      return tarjetasRepository.findByUuid(myUUID).orElse(null);
+      return tarjetasRepository.findByUuid(myUUID).orElseThrow(() -> new TarjetaNotFoundException(myUUID));
   }
 
   @Override
