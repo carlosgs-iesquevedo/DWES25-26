@@ -31,16 +31,16 @@ public class TarjetasServiceImpl implements TarjetasService {
     }
     // Si el numero no está vacío, pero el titular si, buscamos por numero
     if ((numero != null && !numero.isEmpty()) && (titular == null || titular.isEmpty())) {
-      log.info("Buscando tarjetas por numero: " + numero);
+      log.info("Buscando tarjetas por numero: {}", numero);
       return tarjetasRepository.findAllByNumero(numero);
     }
     // Si el numero está vacío, pero el titular no, buscamos por titular
     if (numero == null || numero.isEmpty()) {
-      log.info("Buscando tarjetas por titular: " + titular);
+      log.info("Buscando tarjetas por titular: {}", titular);
       return tarjetasRepository.findAllByTitular(titular);
     }
     // Si el numero y el titular no están vacíos, buscamos por ambos
-    log.info("Buscando tarjetas por numero: " + numero + " y titular: " + titular);
+    log.info("Buscando tarjetas por numero: {} y titular: {}", numero, titular);
     return tarjetasRepository.findAllByNumeroAndTitular(numero, titular);
   }
 
@@ -52,7 +52,7 @@ public class TarjetasServiceImpl implements TarjetasService {
 
   @Override
   public Tarjeta findbyUuid(String uuid) {
-    log.info("Buscando tarjeta por uuid: " + uuid);
+    log.info("Buscando tarjeta por uuid: {}", uuid);
     try {
       var myUUID = UUID.fromString(uuid);
       return tarjetasRepository.findByUuid(myUUID).orElseThrow(() -> new TarjetaNotFoundException(myUUID));
@@ -64,7 +64,7 @@ public class TarjetasServiceImpl implements TarjetasService {
 
   @Override
   public Tarjeta save(Tarjeta tarjeta) {
-    log.info("Guardando tarjeta: " + tarjeta);
+    log.info("Guardando tarjeta: {}", tarjeta);
     // obtenemos el id de tarjeta
     Long id = tarjetasRepository.nextId();
     // Creamos la tarjeta nueva con los datos que nos vienen
@@ -86,7 +86,7 @@ public class TarjetasServiceImpl implements TarjetasService {
 
   @Override
   public Tarjeta update(Long id, Tarjeta tarjeta) {
-    log.info("Actualizando tarjeta por id: " + id);
+    log.info("Actualizando tarjeta por id: {}", id);
     var tarjetaActual = this.findById(id);
     // Actualizamos la tarjeta con los datos que nos vienen
     Tarjeta tarjetaActualizada =  new Tarjeta(
@@ -106,7 +106,7 @@ public class TarjetasServiceImpl implements TarjetasService {
 
   @Override
   public void deleteById(Long id) {
-    log.debug("Borrando tarjeta por id: " + id);
+    log.debug("Borrando tarjeta por id: {}", id);
     var tarjetaEncontrada = this.findById(id);
     // La borramos del repositorio si existe
     if (tarjetaEncontrada != null)

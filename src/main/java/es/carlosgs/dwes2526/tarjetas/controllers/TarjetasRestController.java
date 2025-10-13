@@ -1,15 +1,30 @@
 package es.carlosgs.dwes2526.tarjetas.controllers;
 
+import es.carlosgs.dwes2526.tarjetas.exceptions.TarjetaBadRequestException;
+import es.carlosgs.dwes2526.tarjetas.exceptions.TarjetaNotFoundException;
 import es.carlosgs.dwes2526.tarjetas.models.Tarjeta;
 import es.carlosgs.dwes2526.tarjetas.services.TarjetasService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+/**
+ * Controlador de productos del tipo RestController
+ * Fijamos la ruta de acceso a este controlador
+ * Usamos el repositorio de productos y lo inyectamos en el constructor con Autowired
+ *
+ * @Autowired es una anotación que nos permite inyectar dependencias basadas
+ * en las anotaciones @Controller, @Service, @Component, etc.
+ * y que se encuentren en nuestro contenedor de Spring.
+ */
 @Slf4j
 @RestController // Es un controlador Rest
 @RequestMapping("api/${api.version}/tarjetas") // Es la ruta del controlador
@@ -22,6 +37,13 @@ public class TarjetasRestController {
     this.tarjetasService = tarjetasService;
   }
 
+  /**
+   * Obtiene todas las tarjetas
+   *
+   * @param numero    Número de la tarjeta
+   * @param titular   Titular de la tarjeta
+   * @return Lista de tarjetas
+   */
   @GetMapping()
   public ResponseEntity<List<Tarjeta>> getAll(@RequestParam(required = false) String numero,
                                                       @RequestParam(required = false) String titular) {
@@ -29,30 +51,70 @@ public class TarjetasRestController {
     return ResponseEntity.ok(tarjetasService.findAll(numero, titular));
   }
 
+  /**
+   * Obtiene una tarjeta por su id
+   *
+   * @param id de la tarjeta, se pasa como parámetro de la URL /{id}
+   * @return Tarjeta si existe
+   * @throws TarjetaNotFoundException si no existe la tarjeta (404)
+   */
   @GetMapping("/{id}")
   public ResponseEntity<Tarjeta> getById(@PathVariable Long id) {
     log.info("Buscando tarjeta por id={}", id);
     return ResponseEntity.ok(tarjetasService.findById(id));
   }
 
+  /**
+   * Crear una tarjeta
+   *
+   * @param tarjeta a crear
+   * @return Tarjeta creada
+   * @throws TarjetaBadRequestException si la tarjeta no es correcta (400)
+   */
   @PostMapping()
   public ResponseEntity<Tarjeta> create(@RequestBody Tarjeta tarjeta) {
     var saved = tarjetasService.save(tarjeta);
     return ResponseEntity.status(HttpStatus.CREATED).body(saved);
   }
 
+
+  /**
+   * Actualiza una tarjeta
+   *
+   * @param id      de la tarjeta a actualizar
+   * @param tarjeta con los datos a actualizar
+   * @return Tarjeta actualizada
+   * @throws TarjetaNotFoundException si no existe la tarjeta (404)
+   * @throws TarjetaBadRequestException si la tarjeta no es correcta (400)
+   */
   @PutMapping("/{id}")
   public ResponseEntity<Tarjeta> update(@PathVariable Long id, @RequestBody Tarjeta tarjeta) {
     log.info("Actualizando tarjeta id={} con tarjeta={}", id, tarjeta);
     return ResponseEntity.ok(tarjetasService.update(id, tarjeta));
   }
 
+  /**
+   * Actualiza parcialmente una tarjeta
+   *
+   * @param id      de la tarjeta a actualizar
+   * @param tarjeta con los datos a actualizar
+   * @return Tarjeta actualizada
+   * @throws TarjetaNotFoundException si no existe la tarjeta (404)
+   * @throws TarjetaBadRequestException si la tarjeta no es correcta (400)
+   */
   @PatchMapping("/{id}")
   public ResponseEntity<Tarjeta> updatePartial(@PathVariable Long id, @RequestBody Tarjeta tarjeta) {
     log.info("Actualizando parcialmente tarjeta con id={} con tarjeta={}",id, tarjeta);
     return ResponseEntity.ok(tarjetasService.update(id, tarjeta));
   }
 
+  /**
+   * Borra una tarjeta por su id
+   *
+   * @param id de la tarjeta a borrar
+   * @return ResponseEntity con status 204 No Content si se ha conseguido borradr
+   * @throws TarjetaNotFoundException si no existe la tarjeta (404)
+   */
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> delete(@PathVariable Long id) {
     log.info("Borrando producto por id: " + id);
@@ -60,4 +122,23 @@ public class TarjetasRestController {
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 
+
+  /**
+   * Manejador de excepciones de Validación: 400 Bad Request
+   *
+   * @param ex excepción
+   * @return Mapa de errores de validación con el campo y el mensaje
+   */
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public Map<String, String> handleValidationExceptions(
+      MethodArgumentNotValidException ex) {
+    Map<String, String> errors = new HashMap<>();
+    ex.getBindingResult().getAllErrors().forEach((error) -> {
+      String fieldName = ((FieldError) error).getField();
+      String errorMessage = error.getDefaultMessage();
+      errors.put(fieldName, errorMessage);
+    });
+    return errors;
+  }
 }
