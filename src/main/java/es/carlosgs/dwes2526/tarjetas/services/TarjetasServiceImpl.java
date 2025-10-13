@@ -69,7 +69,7 @@ public class TarjetasServiceImpl implements TarjetasService {
 
   @Override
   public TarjetaResponseDto save(TarjetaCreateDto tarjetaCreateDto) {
-    log.info("Guardando tarjeta: " + tarjetaCreateDto);
+    log.info("Guardando tarjeta: {}", tarjetaCreateDto);
     // obtenemos el id de tarjeta
     Long id = tarjetasRepository.nextId();
     // Creamos la tarjeta nueva con los datos que nos vienen
@@ -80,13 +80,13 @@ public class TarjetasServiceImpl implements TarjetasService {
   }
 
   @Override
-  public Tarjeta update(Long id, TarjetaUpdateDto tarjetaUpdateDto) {
-    log.info("Actualizando tarjeta por id: " + id);
+  public TarjetaResponseDto update(Long id, TarjetaUpdateDto tarjetaUpdateDto) {
+    log.info("Actualizando tarjeta por id: {}", id);
     var tarjetaActual = this.findById(id);
     // Actualizamos la tarjeta con los datos que nos vienen
     Tarjeta tarjetaActualizada =  tarjetaMapper.toTarjeta(tarjetaUpdateDto, tarjetaActual);
     // La guardamos en el repositorio
-    return tarjetasRepository.save(tarjetaActualizada);
+    return tarjetaMapper.toTarjetaResponseDto(tarjetasRepository.save(tarjetaActualizada));
   }
 
   @Override

@@ -16,7 +16,7 @@ public interface TarjetasService {
 
   TarjetaResponseDto save(TarjetaCreateDto tarjetaCreateDto);
 
-  Tarjeta update(Long id, TarjetaUpdateDto tarjetaUpdateDto);
+  TarjetaResponseDto update(Long id, TarjetaUpdateDto tarjetaUpdateDto);
 
   void deleteById(Long id);
 
