@@ -31,7 +31,7 @@ public class TarjetasRepositoryImpl implements TarjetasRepository {
 
   @Override
   public List<Tarjeta> findAllByNumero(String numero) {
-    log.info("Buscando tarjetas por numero: " + numero);
+    log.info("Buscando tarjetas por numero: {}", numero);
     return tarjetas.values().stream()
         .filter(tarjeta -> tarjeta.getNumero().toLowerCase().contains(numero.toLowerCase()))
         .toList();
@@ -39,7 +39,7 @@ public class TarjetasRepositoryImpl implements TarjetasRepository {
 
   @Override
   public List<Tarjeta> findAllByTitular(String titular) {
-    log.info("Buscando tarjetas por titular: " + titular);
+    log.info("Buscando tarjetas por titular: {}", titular);
     return tarjetas.values().stream()
         .filter(tarjeta -> tarjeta.getTitular().toLowerCase().contains(titular.toLowerCase()))
         .toList();
@@ -56,13 +56,13 @@ public class TarjetasRepositoryImpl implements TarjetasRepository {
 
   @Override
   public Optional<Tarjeta> findById(Long id) {
-    log.info("Buscando tarjetas por id: " + id);
+    log.info("Buscando tarjetas por id: {}", id);
     return tarjetas.get(id) != null ? Optional.of(tarjetas.get(id)) : Optional.empty();
   }
 
   @Override
   public Optional<Tarjeta> findByUuid(UUID uuid) {
-    log.info("Buscando tarjeta por uuid: " + uuid);
+    log.info("Buscando tarjeta por uuid: {}", uuid);
     return tarjetas.values().stream()
         .filter(tarjeta -> tarjeta.getUuid().equals(uuid))
         .findFirst();
@@ -70,33 +70,33 @@ public class TarjetasRepositoryImpl implements TarjetasRepository {
 
   @Override
   public boolean existsById(Long id) {
-    log.info("Comprobando si existe tarjeta por id: " + id);
+    log.info("Comprobando si existe tarjeta por id: {}", id);
     return tarjetas.get(id) != null;
   }
 
   @Override
   public boolean existsByUuid(UUID uuid) {
-    log.info("Comprobando si existe tarjeta por uuid: " + uuid);
+    log.info("Comprobando si existe tarjeta por uuid: {}", uuid);
     return tarjetas.values().stream()
         .anyMatch(tarjeta -> tarjeta.getUuid().equals(uuid));
   }
 
   @Override
   public Tarjeta save(Tarjeta tarjeta) {
-    log.info("Guardando tarjeta: " + tarjeta);
+    log.info("Guardando tarjeta: {}", tarjeta);
     tarjetas.put(tarjeta.getId(), tarjeta);
     return tarjeta;
   }
 
   @Override
   public void deleteById(Long id) {
-    log.info("Borrando tarjeta por id: " + id);
+    log.info("Borrando tarjeta por id: {}", id);
     tarjetas.remove(id);
   }
 
   @Override
   public void deleteByUuid(UUID uuid) {
-    log.info("Borrando tarjeta por uuid: " + uuid);
+    log.info("Borrando tarjeta por uuid: {}", uuid);
     tarjetas.values().removeIf(tarjeta -> tarjeta.getUuid().equals(uuid));
   }
 

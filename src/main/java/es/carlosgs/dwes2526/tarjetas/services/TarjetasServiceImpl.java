@@ -10,11 +10,16 @@ import es.carlosgs.dwes2526.tarjetas.models.Tarjeta;
 import es.carlosgs.dwes2526.tarjetas.repositories.TarjetasRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
+@CacheConfig(cacheNames = {"tarjetas"})
 @Slf4j
 @Service
 public class TarjetasServiceImpl implements TarjetasService {
@@ -49,12 +54,14 @@ public class TarjetasServiceImpl implements TarjetasService {
     return tarjetasRepository.findAllByNumeroAndTitular(numero, titular);
   }
 
+  @Cacheable
   @Override
   public Tarjeta findById(Long id) {
     log.info("Buscando tarjeta por id {}", id);
     return tarjetasRepository.findById(id).orElseThrow(()-> new TarjetaNotFoundException(id));
   }
 
+  @Cacheable
   @Override
   public Tarjeta findbyUuid(String uuid) {
     log.info("Buscando tarjeta por uuid: {}", uuid);
@@ -67,6 +74,7 @@ public class TarjetasServiceImpl implements TarjetasService {
 
   }
 
+  @CachePut
   @Override
   public TarjetaResponseDto save(TarjetaCreateDto tarjetaCreateDto) {
     log.info("Guardando tarjeta: {}", tarjetaCreateDto);
@@ -79,6 +87,7 @@ public class TarjetasServiceImpl implements TarjetasService {
     return tarjetaMapper.toTarjetaResponseDto(tarjetasRepository.save(nuevaTarjeta));
   }
 
+  @CachePut
   @Override
   public TarjetaResponseDto update(Long id, TarjetaUpdateDto tarjetaUpdateDto) {
     log.info("Actualizando tarjeta por id: {}", id);
@@ -89,6 +98,7 @@ public class TarjetasServiceImpl implements TarjetasService {
     return tarjetaMapper.toTarjetaResponseDto(tarjetasRepository.save(tarjetaActualizada));
   }
 
+  @CacheEvict
   @Override
   public void deleteById(Long id) {
     log.debug("Borrando tarjeta por id: {}", id);
