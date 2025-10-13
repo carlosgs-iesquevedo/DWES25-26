@@ -1,5 +1,6 @@
 package es.carlosgs.dwes2526.tarjetas.services;
 
+import es.carlosgs.dwes2526.tarjetas.exceptions.TarjetaBadUuidException;
 import es.carlosgs.dwes2526.tarjetas.exceptions.TarjetaNotFoundException;
 import es.carlosgs.dwes2526.tarjetas.models.Tarjeta;
 import es.carlosgs.dwes2526.tarjetas.repositories.TarjetasRepository;
@@ -52,8 +53,13 @@ public class TarjetasServiceImpl implements TarjetasService {
   @Override
   public Tarjeta findbyUuid(String uuid) {
     log.info("Buscando tarjeta por uuid: " + uuid);
+    try {
       var myUUID = UUID.fromString(uuid);
       return tarjetasRepository.findByUuid(myUUID).orElseThrow(() -> new TarjetaNotFoundException(myUUID));
+    } catch (IllegalArgumentException e) {
+      throw new TarjetaBadUuidException(uuid);
+    }
+
   }
 
   @Override
