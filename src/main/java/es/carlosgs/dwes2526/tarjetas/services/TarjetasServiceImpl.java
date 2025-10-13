@@ -1,14 +1,17 @@
 package es.carlosgs.dwes2526.tarjetas.services;
 
+import es.carlosgs.dwes2526.tarjetas.dto.TarjetaCreateDto;
+import es.carlosgs.dwes2526.tarjetas.dto.TarjetaResponseDto;
+import es.carlosgs.dwes2526.tarjetas.dto.TarjetaUpdateDto;
 import es.carlosgs.dwes2526.tarjetas.exceptions.TarjetaBadUuidException;
 import es.carlosgs.dwes2526.tarjetas.exceptions.TarjetaNotFoundException;
+import es.carlosgs.dwes2526.tarjetas.mappers.TarjetaMapper;
 import es.carlosgs.dwes2526.tarjetas.models.Tarjeta;
 import es.carlosgs.dwes2526.tarjetas.repositories.TarjetasRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,10 +19,12 @@ import java.util.UUID;
 @Service
 public class TarjetasServiceImpl implements TarjetasService {
   private final TarjetasRepository tarjetasRepository;
+  private final TarjetaMapper tarjetaMapper;
 
   @Autowired
-  public TarjetasServiceImpl(TarjetasRepository tarjetasRepository) {
+  public TarjetasServiceImpl(TarjetasRepository tarjetasRepository,  TarjetaMapper tarjetaMapper) {
     this.tarjetasRepository = tarjetasRepository;
+    this.tarjetaMapper = tarjetaMapper;
   }
 
   @Override
@@ -63,43 +68,23 @@ public class TarjetasServiceImpl implements TarjetasService {
   }
 
   @Override
-  public Tarjeta save(Tarjeta tarjeta) {
-    log.info("Guardando tarjeta: {}", tarjeta);
+  public TarjetaResponseDto save(TarjetaCreateDto tarjetaCreateDto) {
+    log.info("Guardando tarjeta: " + tarjetaCreateDto);
     // obtenemos el id de tarjeta
     Long id = tarjetasRepository.nextId();
     // Creamos la tarjeta nueva con los datos que nos vienen
-    Tarjeta nuevaTarjeta = new Tarjeta(
-        id,
-        tarjeta.getNumero(),
-        tarjeta.getCvc(),
-        tarjeta.getFechaCaducidad(),
-        tarjeta.getTitular(),
-        tarjeta.getSaldo(),
-        LocalDateTime.now(),
-        LocalDateTime.now(),
-        UUID.randomUUID()
-    );
+    Tarjeta nuevaTarjeta = tarjetaMapper.toTarjeta(id, tarjetaCreateDto);
 
     // La guardamos en el repositorio
-    return tarjetasRepository.save(nuevaTarjeta);
+    return tarjetaMapper.toTarjetaResponseDto(tarjetasRepository.save(nuevaTarjeta));
   }
 
   @Override
-  public Tarjeta update(Long id, Tarjeta tarjeta) {
-    log.info("Actualizando tarjeta por id: {}", id);
+  public Tarjeta update(Long id, TarjetaUpdateDto tarjetaUpdateDto) {
+    log.info("Actualizando tarjeta por id: " + id);
     var tarjetaActual = this.findById(id);
     // Actualizamos la tarjeta con los datos que nos vienen
-    Tarjeta tarjetaActualizada =  new Tarjeta(
-            tarjetaActual.getId(),
-            tarjeta.getNumero() != null ? tarjeta.getNumero() : tarjetaActual.getNumero(),
-            tarjeta.getCvc() != null ? tarjeta.getCvc() : tarjetaActual.getCvc(),
-            tarjeta.getFechaCaducidad() != null ? tarjeta.getFechaCaducidad() : tarjetaActual.getFechaCaducidad(),
-            tarjeta.getTitular() != null ? tarjeta.getTitular() : tarjetaActual.getTitular(),
-            tarjeta.getSaldo() != null ? tarjeta.getSaldo() : tarjetaActual.getSaldo(),
-            tarjetaActual.getCreatedAt(),
-            LocalDateTime.now(),
-            tarjetaActual.getUuid()
-        );
+    Tarjeta tarjetaActualizada =  tarjetaMapper.toTarjeta(tarjetaUpdateDto, tarjetaActual);
     // La guardamos en el repositorio
     return tarjetasRepository.save(tarjetaActualizada);
   }

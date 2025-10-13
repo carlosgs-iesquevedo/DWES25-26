@@ -1,5 +1,8 @@
 package es.carlosgs.dwes2526.tarjetas.controllers;
 
+import es.carlosgs.dwes2526.tarjetas.dto.TarjetaCreateDto;
+import es.carlosgs.dwes2526.tarjetas.dto.TarjetaResponseDto;
+import es.carlosgs.dwes2526.tarjetas.dto.TarjetaUpdateDto;
 import es.carlosgs.dwes2526.tarjetas.exceptions.TarjetaBadRequestException;
 import es.carlosgs.dwes2526.tarjetas.exceptions.TarjetaNotFoundException;
 import es.carlosgs.dwes2526.tarjetas.models.Tarjeta;
@@ -67,13 +70,14 @@ public class TarjetasRestController {
   /**
    * Crear una tarjeta
    *
-   * @param tarjeta a crear
+   * @param tarjetaCreateDto a crear
    * @return Tarjeta creada
    * @throws TarjetaBadRequestException si la tarjeta no es correcta (400)
    */
   @PostMapping()
-  public ResponseEntity<Tarjeta> create(@RequestBody Tarjeta tarjeta) {
-    var saved = tarjetasService.save(tarjeta);
+  public ResponseEntity<TarjetaResponseDto> create(@RequestBody TarjetaCreateDto tarjetaCreateDto) {
+    log.info("Creando tarjeta : {}", tarjetaCreateDto);
+    var saved = tarjetasService.save(tarjetaCreateDto);
     return ResponseEntity.status(HttpStatus.CREATED).body(saved);
   }
 
@@ -82,30 +86,30 @@ public class TarjetasRestController {
    * Actualiza una tarjeta
    *
    * @param id      de la tarjeta a actualizar
-   * @param tarjeta con los datos a actualizar
+   * @param tarjetaUpdateDto con los datos a actualizar
    * @return Tarjeta actualizada
    * @throws TarjetaNotFoundException si no existe la tarjeta (404)
    * @throws TarjetaBadRequestException si la tarjeta no es correcta (400)
    */
   @PutMapping("/{id}")
-  public ResponseEntity<Tarjeta> update(@PathVariable Long id, @RequestBody Tarjeta tarjeta) {
-    log.info("Actualizando tarjeta id={} con tarjeta={}", id, tarjeta);
-    return ResponseEntity.ok(tarjetasService.update(id, tarjeta));
+  public ResponseEntity<Tarjeta> update(@PathVariable Long id, @RequestBody TarjetaUpdateDto tarjetaUpdateDto) {
+    log.info("Actualizando tarjeta id={} con tarjeta={}", id, tarjetaUpdateDto);
+    return ResponseEntity.ok(tarjetasService.update(id, tarjetaUpdateDto));
   }
 
   /**
    * Actualiza parcialmente una tarjeta
    *
    * @param id      de la tarjeta a actualizar
-   * @param tarjeta con los datos a actualizar
+   * @param tarjetaUpdateDto con los datos a actualizar
    * @return Tarjeta actualizada
    * @throws TarjetaNotFoundException si no existe la tarjeta (404)
    * @throws TarjetaBadRequestException si la tarjeta no es correcta (400)
    */
   @PatchMapping("/{id}")
-  public ResponseEntity<Tarjeta> updatePartial(@PathVariable Long id, @RequestBody Tarjeta tarjeta) {
-    log.info("Actualizando parcialmente tarjeta con id={} con tarjeta={}",id, tarjeta);
-    return ResponseEntity.ok(tarjetasService.update(id, tarjeta));
+  public ResponseEntity<Tarjeta> updatePartial(@PathVariable Long id, @RequestBody TarjetaUpdateDto tarjetaUpdateDto) {
+    log.info("Actualizando parcialmente tarjeta con id={} con tarjeta={}",id, tarjetaUpdateDto);
+    return ResponseEntity.ok(tarjetasService.update(id, tarjetaUpdateDto));
   }
 
   /**
@@ -117,7 +121,7 @@ public class TarjetasRestController {
    */
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> delete(@PathVariable Long id) {
-    log.info("Borrando producto por id: " + id);
+    log.info("Borrando producto por id: {}", id);
     tarjetasService.deleteById(id);
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
