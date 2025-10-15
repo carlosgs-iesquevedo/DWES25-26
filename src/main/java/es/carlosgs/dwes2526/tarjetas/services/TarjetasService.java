@@ -8,11 +8,11 @@ import es.carlosgs.dwes2526.tarjetas.models.Tarjeta;
 import java.util.List;
 
 public interface TarjetasService {
-  List<Tarjeta> findAll(String numero, String titular);
+  List<TarjetaResponseDto> findAll(String numero, String titular);
 
-  Tarjeta findById(Long id);
+  TarjetaResponseDto findById(Long id);
 
-  Tarjeta findbyUuid(String uuid);
+  TarjetaResponseDto findbyUuid(String uuid);
 
   TarjetaResponseDto save(TarjetaCreateDto tarjetaCreateDto);
 
