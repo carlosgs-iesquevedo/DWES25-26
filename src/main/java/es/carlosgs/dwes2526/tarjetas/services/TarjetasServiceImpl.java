@@ -54,14 +54,15 @@ public class TarjetasServiceImpl implements TarjetasService {
     return tarjetasRepository.findAllByNumeroAndTitular(numero, titular);
   }
 
-  @Cacheable
+  // Cachea con el id como key
+  @Cacheable(key = "#id")
   @Override
   public Tarjeta findById(Long id) {
     log.info("Buscando tarjeta por id {}", id);
     return tarjetasRepository.findById(id).orElseThrow(()-> new TarjetaNotFoundException(id));
   }
 
-  @Cacheable
+  @Cacheable(key = "#id")
   @Override
   public Tarjeta findbyUuid(String uuid) {
     log.info("Buscando tarjeta por uuid: {}", uuid);
@@ -74,7 +75,8 @@ public class TarjetasServiceImpl implements TarjetasService {
 
   }
 
-  @CachePut
+  // Cachea con el id del resultado de la operación como key
+  @CachePut(key = "#result.id")
   @Override
   public TarjetaResponseDto save(TarjetaCreateDto tarjetaCreateDto) {
     log.info("Guardando tarjeta: {}", tarjetaCreateDto);
@@ -87,7 +89,7 @@ public class TarjetasServiceImpl implements TarjetasService {
     return tarjetaMapper.toTarjetaResponseDto(tarjetasRepository.save(nuevaTarjeta));
   }
 
-  @CachePut
+  @CachePut(key = "#result.id")
   @Override
   public TarjetaResponseDto update(Long id, TarjetaUpdateDto tarjetaUpdateDto) {
     log.info("Actualizando tarjeta por id: {}", id);
@@ -98,7 +100,8 @@ public class TarjetasServiceImpl implements TarjetasService {
     return tarjetaMapper.toTarjetaResponseDto(tarjetasRepository.save(tarjetaActualizada));
   }
 
-  @CacheEvict
+  // El key es opcional, si no se indica
+  @CacheEvict(key = "#id")
   @Override
   public void deleteById(Long id) {
     log.debug("Borrando tarjeta por id: {}", id);
