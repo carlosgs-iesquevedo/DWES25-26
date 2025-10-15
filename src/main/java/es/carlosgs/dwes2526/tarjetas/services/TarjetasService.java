@@ -3,7 +3,6 @@ package es.carlosgs.dwes2526.tarjetas.services;
 import es.carlosgs.dwes2526.tarjetas.dto.TarjetaCreateDto;
 import es.carlosgs.dwes2526.tarjetas.dto.TarjetaResponseDto;
 import es.carlosgs.dwes2526.tarjetas.dto.TarjetaUpdateDto;
-import es.carlosgs.dwes2526.tarjetas.models.Tarjeta;
 
 import java.util.List;
 
