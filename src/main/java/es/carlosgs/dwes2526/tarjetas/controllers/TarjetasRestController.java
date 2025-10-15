@@ -5,7 +5,6 @@ import es.carlosgs.dwes2526.tarjetas.dto.TarjetaResponseDto;
 import es.carlosgs.dwes2526.tarjetas.dto.TarjetaUpdateDto;
 import es.carlosgs.dwes2526.tarjetas.exceptions.TarjetaBadRequestException;
 import es.carlosgs.dwes2526.tarjetas.exceptions.TarjetaNotFoundException;
-import es.carlosgs.dwes2526.tarjetas.models.Tarjeta;
 import es.carlosgs.dwes2526.tarjetas.services.TarjetasService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +47,7 @@ public class TarjetasRestController {
    * @return Lista de tarjetas
    */
   @GetMapping()
-  public ResponseEntity<List<Tarjeta>> getAll(@RequestParam(required = false) String numero,
+  public ResponseEntity<List<TarjetaResponseDto>> getAll(@RequestParam(required = false) String numero,
                                                       @RequestParam(required = false) String titular) {
     log.info("Buscando tarjetas por numero={}, titular={}", numero, titular);
     return ResponseEntity.ok(tarjetasService.findAll(numero, titular));
@@ -58,11 +57,11 @@ public class TarjetasRestController {
    * Obtiene una tarjeta por su id
    *
    * @param id de la tarjeta, se pasa como parámetro de la URL /{id}
-   * @return Tarjeta si existe
+   * @return TarjetaResponseDto si existe
    * @throws TarjetaNotFoundException si no existe la tarjeta (404)
    */
   @GetMapping("/{id}")
-  public ResponseEntity<Tarjeta> getById(@PathVariable Long id) {
+  public ResponseEntity<TarjetaResponseDto> getById(@PathVariable Long id) {
     log.info("Buscando tarjeta por id={}", id);
     return ResponseEntity.ok(tarjetasService.findById(id));
   }
@@ -71,7 +70,7 @@ public class TarjetasRestController {
    * Crear una tarjeta
    *
    * @param tarjetaCreateDto a crear
-   * @return Tarjeta creada
+   * @return TarjetaResponseDto creada
    * @throws TarjetaBadRequestException si la tarjeta no es correcta (400)
    */
   @PostMapping()
@@ -87,7 +86,7 @@ public class TarjetasRestController {
    *
    * @param id      de la tarjeta a actualizar
    * @param tarjetaUpdateDto con los datos a actualizar
-   * @return Tarjeta actualizada
+   * @return TarjetaResponseDto actualizada
    * @throws TarjetaNotFoundException si no existe la tarjeta (404)
    * @throws TarjetaBadRequestException si la tarjeta no es correcta (400)
    */

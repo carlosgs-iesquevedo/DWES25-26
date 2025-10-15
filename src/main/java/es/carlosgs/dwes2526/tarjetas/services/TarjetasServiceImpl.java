@@ -33,42 +33,45 @@ public class TarjetasServiceImpl implements TarjetasService {
   }
 
   @Override
-  public List<Tarjeta> findAll(String numero, String titular) {
+  public List<TarjetaResponseDto> findAll(String numero, String titular) {
     // Si todo está vacío o nulo, devolvemos todas las tarjetas
     if ((numero == null || numero.isEmpty()) && (titular == null || titular.isEmpty())) {
       log.info("Buscando todas las tarjetas");
-      return tarjetasRepository.findAll();
+      return tarjetaMapper.toResponseDtoList(tarjetasRepository.findAll());
     }
     // Si el numero no está vacío, pero el titular si, buscamos por numero
     if ((numero != null && !numero.isEmpty()) && (titular == null || titular.isEmpty())) {
       log.info("Buscando tarjetas por numero: {}", numero);
-      return tarjetasRepository.findAllByNumero(numero);
+      return tarjetaMapper.toResponseDtoList(tarjetasRepository.findAllByNumero(numero));
     }
     // Si el numero está vacío, pero el titular no, buscamos por titular
     if (numero == null || numero.isEmpty()) {
       log.info("Buscando tarjetas por titular: {}", titular);
-      return tarjetasRepository.findAllByTitular(titular);
+      return tarjetaMapper.toResponseDtoList(tarjetasRepository.findAllByTitular(titular));
     }
     // Si el numero y el titular no están vacíos, buscamos por ambos
     log.info("Buscando tarjetas por numero: {} y titular: {}", numero, titular);
-    return tarjetasRepository.findAllByNumeroAndTitular(numero, titular);
+    return tarjetaMapper.toResponseDtoList(tarjetasRepository.findAllByNumeroAndTitular(numero, titular));
   }
 
   // Cachea con el id como key
   @Cacheable(key = "#id")
   @Override
-  public Tarjeta findById(Long id) {
+  public TarjetaResponseDto findById(Long id) {
     log.info("Buscando tarjeta por id {}", id);
-    return tarjetasRepository.findById(id).orElseThrow(()-> new TarjetaNotFoundException(id));
+
+    return tarjetaMapper.toTarjetaResponseDto(tarjetasRepository.findById(id)
+        .orElseThrow(()-> new TarjetaNotFoundException(id)));
   }
 
   @Cacheable(key = "#id")
   @Override
-  public Tarjeta findbyUuid(String uuid) {
+  public TarjetaResponseDto findbyUuid(String uuid) {
     log.info("Buscando tarjeta por uuid: {}", uuid);
     try {
       var myUUID = UUID.fromString(uuid);
-      return tarjetasRepository.findByUuid(myUUID).orElseThrow(() -> new TarjetaNotFoundException(myUUID));
+      return tarjetaMapper.toTarjetaResponseDto(tarjetasRepository.findByUuid(myUUID)
+          .orElseThrow(() -> new TarjetaNotFoundException(myUUID)));
     } catch (IllegalArgumentException e) {
       throw new TarjetaBadUuidException(uuid);
     }
@@ -84,7 +87,6 @@ public class TarjetasServiceImpl implements TarjetasService {
     Long id = tarjetasRepository.nextId();
     // Creamos la tarjeta nueva con los datos que nos vienen
     Tarjeta nuevaTarjeta = tarjetaMapper.toTarjeta(id, tarjetaCreateDto);
-
     // La guardamos en el repositorio
     return tarjetaMapper.toTarjetaResponseDto(tarjetasRepository.save(nuevaTarjeta));
   }
@@ -93,7 +95,8 @@ public class TarjetasServiceImpl implements TarjetasService {
   @Override
   public TarjetaResponseDto update(Long id, TarjetaUpdateDto tarjetaUpdateDto) {
     log.info("Actualizando tarjeta por id: {}", id);
-    var tarjetaActual = this.findById(id);
+    // Si no existe lanza excepción
+    var tarjetaActual = tarjetasRepository.findById(id).orElseThrow(()-> new TarjetaNotFoundException(id));
     // Actualizamos la tarjeta con los datos que nos vienen
     Tarjeta tarjetaActualizada =  tarjetaMapper.toTarjeta(tarjetaUpdateDto, tarjetaActual);
     // La guardamos en el repositorio
@@ -105,10 +108,10 @@ public class TarjetasServiceImpl implements TarjetasService {
   @Override
   public void deleteById(Long id) {
     log.debug("Borrando tarjeta por id: {}", id);
-    var tarjetaEncontrada = this.findById(id);
+    // Si no existe lanza excepción
+    tarjetasRepository.findById(id).orElseThrow(()-> new TarjetaNotFoundException(id));
     // La borramos del repositorio si existe
-    if (tarjetaEncontrada != null)
-      tarjetasRepository.deleteById(id);
+    tarjetasRepository.deleteById(id);
 
   }
 
