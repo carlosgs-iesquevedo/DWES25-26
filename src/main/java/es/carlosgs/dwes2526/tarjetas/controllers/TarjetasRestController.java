@@ -6,6 +6,7 @@ import es.carlosgs.dwes2526.tarjetas.dto.TarjetaUpdateDto;
 import es.carlosgs.dwes2526.tarjetas.exceptions.TarjetaBadRequestException;
 import es.carlosgs.dwes2526.tarjetas.exceptions.TarjetaNotFoundException;
 import es.carlosgs.dwes2526.tarjetas.services.TarjetasService;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -74,7 +75,7 @@ public class TarjetasRestController {
    * @throws TarjetaBadRequestException si la tarjeta no es correcta (400)
    */
   @PostMapping()
-  public ResponseEntity<TarjetaResponseDto> create(@RequestBody TarjetaCreateDto tarjetaCreateDto) {
+  public ResponseEntity<TarjetaResponseDto> create(@Valid @RequestBody TarjetaCreateDto tarjetaCreateDto) {
     log.info("Creando tarjeta : {}", tarjetaCreateDto);
     var saved = tarjetasService.save(tarjetaCreateDto);
     return ResponseEntity.status(HttpStatus.CREATED).body(saved);
