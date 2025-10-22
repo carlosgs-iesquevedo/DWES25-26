@@ -92,7 +92,7 @@ public class TarjetasRestController {
    * @throws TarjetaBadRequestException si la tarjeta no es correcta (400)
    */
   @PutMapping("/{id}")
-  public ResponseEntity<TarjetaResponseDto> update(@PathVariable Long id, @RequestBody TarjetaUpdateDto tarjetaUpdateDto) {
+  public ResponseEntity<TarjetaResponseDto> update(@PathVariable Long id, @Valid @RequestBody TarjetaUpdateDto tarjetaUpdateDto) {
     log.info("Actualizando tarjeta id={} con tarjeta={}", id, tarjetaUpdateDto);
     return ResponseEntity.ok(tarjetasService.update(id, tarjetaUpdateDto));
   }
@@ -107,7 +107,7 @@ public class TarjetasRestController {
    * @throws TarjetaBadRequestException si la tarjeta no es correcta (400)
    */
   @PatchMapping("/{id}")
-  public ResponseEntity<TarjetaResponseDto> updatePartial(@PathVariable Long id, @RequestBody TarjetaUpdateDto tarjetaUpdateDto) {
+  public ResponseEntity<TarjetaResponseDto> updatePartial(@PathVariable Long id, @Valid @RequestBody TarjetaUpdateDto tarjetaUpdateDto) {
     log.info("Actualizando parcialmente tarjeta con id={} con tarjeta={}",id, tarjetaUpdateDto);
     return ResponseEntity.ok(tarjetasService.update(id, tarjetaUpdateDto));
   }

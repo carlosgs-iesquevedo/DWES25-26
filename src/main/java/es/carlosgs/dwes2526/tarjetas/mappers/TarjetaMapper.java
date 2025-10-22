@@ -32,7 +32,9 @@ public class TarjetaMapper {
         tarjetaUpdateDto.getNumero() != null ? tarjetaUpdateDto.getNumero() : tarjeta.getNumero(),
         tarjetaUpdateDto.getCvc() != null ? tarjetaUpdateDto.getCvc() : tarjeta.getCvc(),
         tarjetaUpdateDto.getFechaCaducidad() != null ? tarjetaUpdateDto.getFechaCaducidad() : tarjeta.getFechaCaducidad(),
-        tarjetaUpdateDto.getTitular() != null ? tarjetaUpdateDto.getTitular() : tarjeta.getTitular(),
+        // Una vez creada la tarjeta, no se puede cambiar el titular
+        //tarjetaUpdateDto.getTitular() != null ? tarjetaUpdateDto.getTitular() : tarjeta.getTitular(),
+        tarjeta.getTitular(),
         tarjetaUpdateDto.getSaldo() != null ? tarjetaUpdateDto.getSaldo() : tarjeta.getSaldo(),
         tarjeta.getCreatedAt(),
         LocalDateTime.now(),
