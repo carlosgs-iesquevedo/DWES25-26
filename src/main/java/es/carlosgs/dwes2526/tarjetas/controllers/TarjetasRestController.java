@@ -7,8 +7,8 @@ import es.carlosgs.dwes2526.tarjetas.exceptions.TarjetaBadRequestException;
 import es.carlosgs.dwes2526.tarjetas.exceptions.TarjetaNotFoundException;
 import es.carlosgs.dwes2526.tarjetas.services.TarjetasService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
@@ -26,21 +26,18 @@ import java.util.Map;
  * Fijamos la ruta de acceso a este controlador
  * Usamos el repositorio de productos y lo inyectamos en el constructor con Autowired
  *
- * @Autowired es una anotación que nos permite inyectar dependencias basadas
+ * @RequiredArgsConstructor es una anotación Lombok que nos permite inyectar dependencias basadas
  * en las anotaciones @Controller, @Service, @Component, etc.
- * y que se encuentren en nuestro contenedor de Spring.
+ * y que se encuentren en nuestro contenedor de Spring
+ * con solo declarar las dependencias como final ya que el constructor lo genera Lombok
  */
 @Slf4j
+@RequiredArgsConstructor
 @RestController // Es un controlador Rest
 @RequestMapping("api/${api.version}/tarjetas") // Es la ruta del controlador
 public class TarjetasRestController {
   // Servicio de tarjetas
   private final TarjetasService tarjetasService;
-
-  @Autowired
-  public TarjetasRestController(TarjetasService tarjetasService) {
-    this.tarjetasService = tarjetasService;
-  }
 
   /**
    * Obtiene todas las tarjetas

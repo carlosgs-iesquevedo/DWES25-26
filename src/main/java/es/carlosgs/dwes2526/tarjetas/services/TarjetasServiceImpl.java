@@ -8,8 +8,8 @@ import es.carlosgs.dwes2526.tarjetas.exceptions.TarjetaNotFoundException;
 import es.carlosgs.dwes2526.tarjetas.mappers.TarjetaMapper;
 import es.carlosgs.dwes2526.tarjetas.models.Tarjeta;
 import es.carlosgs.dwes2526.tarjetas.repositories.TarjetasRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -21,16 +21,11 @@ import java.util.UUID;
 
 @CacheConfig(cacheNames = {"tarjetas"})
 @Slf4j
+@RequiredArgsConstructor
 @Service
 public class TarjetasServiceImpl implements TarjetasService {
   private final TarjetasRepository tarjetasRepository;
   private final TarjetaMapper tarjetaMapper;
-
-  @Autowired
-  public TarjetasServiceImpl(TarjetasRepository tarjetasRepository,  TarjetaMapper tarjetaMapper) {
-    this.tarjetasRepository = tarjetasRepository;
-    this.tarjetaMapper = tarjetaMapper;
-  }
 
   @Override
   public List<TarjetaResponseDto> findAll(String numero, String titular) {
