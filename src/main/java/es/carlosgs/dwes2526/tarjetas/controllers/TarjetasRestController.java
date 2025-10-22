@@ -10,7 +10,9 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
@@ -135,14 +137,23 @@ public class TarjetasRestController {
    */
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   @ExceptionHandler(MethodArgumentNotValidException.class)
-  public Map<String, String> handleValidationExceptions(
+  public ProblemDetail handleValidationExceptions(
       MethodArgumentNotValidException ex) {
-    Map<String, String> errors = new HashMap<>();
-    ex.getBindingResult().getAllErrors().forEach((error) -> {
+
+    ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+
+    BindingResult result = ex.getBindingResult();
+    problemDetail.setDetail("Falló la validación para el objeto='" + result.getObjectName()
+        + "'. " + "Núm. errores: " + result.getErrorCount());
+
+    Map<String, String> errores = new HashMap<>();
+    result.getAllErrors().forEach((error) -> {
       String fieldName = ((FieldError) error).getField();
       String errorMessage = error.getDefaultMessage();
-      errors.put(fieldName, errorMessage);
+      errores.put(fieldName, errorMessage);
     });
-    return errors;
+
+    problemDetail.setProperty("errores", errores);
+    return problemDetail;
   }
 }
