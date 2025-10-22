@@ -3,10 +3,12 @@ package es.carlosgs.dwes2526.tarjetas.dto;
 import es.carlosgs.dwes2526.tarjetas.validators.CreditCardNumber;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.Pattern;
+import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDate;
 
+@Builder
 @Data
 public class TarjetaUpdateDto {
   @CreditCardNumber

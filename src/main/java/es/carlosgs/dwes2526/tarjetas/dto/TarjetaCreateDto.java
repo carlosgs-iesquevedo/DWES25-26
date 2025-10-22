@@ -2,10 +2,12 @@ package es.carlosgs.dwes2526.tarjetas.dto;
 
 import es.carlosgs.dwes2526.tarjetas.validators.CreditCardNumber;
 import jakarta.validation.constraints.*;
+import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDate;
 
+@Builder
 @Data
 public class TarjetaCreateDto {
   //@Pattern(regexp = "[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{4}",
