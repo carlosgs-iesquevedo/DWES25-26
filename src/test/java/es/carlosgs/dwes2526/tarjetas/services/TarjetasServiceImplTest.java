@@ -2,6 +2,7 @@ package es.carlosgs.dwes2526.tarjetas.services;
 
 import es.carlosgs.dwes2526.tarjetas.dto.TarjetaCreateDto;
 import es.carlosgs.dwes2526.tarjetas.dto.TarjetaResponseDto;
+import es.carlosgs.dwes2526.tarjetas.dto.TarjetaUpdateDto;
 import es.carlosgs.dwes2526.tarjetas.exceptions.TarjetaBadUuidException;
 import es.carlosgs.dwes2526.tarjetas.exceptions.TarjetaNotFoundException;
 import es.carlosgs.dwes2526.tarjetas.mappers.TarjetaMapper;
@@ -130,7 +131,7 @@ class TarjetasServiceImplTest {
     when(tarjetaMapper.toResponseDtoList(anyList())).thenReturn(expectedTarjetaResponses);
 
     // Act
-    List<TarjetaResponseDto> actualTarjetaResponses = tarjetasService.findAll(titular, null);
+    List<TarjetaResponseDto> actualTarjetaResponses = tarjetasService.findAll(null, titular);
 
     // Assert
     assertIterableEquals(expectedTarjetaResponses, actualTarjetaResponses);
@@ -279,10 +280,83 @@ class TarjetasServiceImplTest {
   }
 
   @Test
-  void update() {
+  void update_ShouldReturnUpdatedTarjeta_WhenValidIdAndtarjetaUpdateDtoProvided() {
+    // Arrange
+    Long id = 1L;
+    TarjetaUpdateDto tarjetaUpdateDto = TarjetaUpdateDto.builder()
+        .saldo(500.0)
+        .build();
+    Tarjeta existingTarjeta = tarjeta1;
+    TarjetaResponseDto existingTarjetaResponse = TarjetaResponseDto.builder()
+        .id(1L)
+        .numero("1234-5678-1234-5678")
+        .cvc("555")
+        .fechaCaducidad(LocalDate.of(2025,12,31))
+        .titular("Jose")
+        .saldo(500.0)
+        .build();
+
+    when(tarjetasRepository.findById(id)).thenReturn(Optional.of(existingTarjeta));
+    when(tarjetasRepository.save(existingTarjeta)).thenReturn(existingTarjeta);
+    when(tarjetaMapper.toTarjeta(tarjetaUpdateDto, tarjeta1)).thenReturn(existingTarjeta);
+    when(tarjetaMapper.toTarjetaResponseDto(any(Tarjeta.class))).thenReturn(existingTarjetaResponse);
+
+    // Act
+    TarjetaResponseDto actualTarjetaResponse = tarjetasService.update(id, tarjetaUpdateDto);
+
+    // Assert
+    assertEquals(existingTarjetaResponse, actualTarjetaResponse);
+
+    // Verify
+    verify(tarjetasRepository, times(1)).findById(id);
+    verify(tarjetasRepository, times(1)).save(tarjetaCaptor.capture());
+    verify(tarjetaMapper, times(1)).toTarjeta(tarjetaUpdateDto, tarjeta1);
+    verify(tarjetaMapper, times(1)).toTarjetaResponseDto(any(Tarjeta.class));
   }
 
   @Test
-  void deleteById() {
+  void update_ShouldThrowTarjetaNotFound_WhenInvalidIdProvided() {
+    // Arrange
+    Long id = 1L;
+    TarjetaUpdateDto tarjetaUpdateDto = TarjetaUpdateDto.builder()
+        .saldo(500.0)
+        .build();
+    when(tarjetasRepository.findById(id)).thenReturn(Optional.empty());
+
+    // Act & Assert
+    var res = assertThrows(TarjetaNotFoundException.class,
+        () -> tarjetasService.update(id, tarjetaUpdateDto));
+    assertEquals("Tarjeta con id " + id + " no encontrada", res.getMessage());
+
+    // Verify
+    verify(tarjetasRepository, times(0)).save(any(Tarjeta.class));
+  }
+
+  @Test
+  void deleteById_ShouldDeleteTarjeta_WhenValidIdProvided() {
+    // Arrange
+    Long id = 1L;
+    Tarjeta existingTarjeta = tarjeta1;
+    when(tarjetasRepository.findById(id)).thenReturn(Optional.of(existingTarjeta));
+
+    // Act
+    tarjetasService.deleteById(id);
+
+    // Assert
+    verify(tarjetasRepository, times(1)).deleteById(id);
+  }
+
+  @Test
+  void deleteById_ShouldThrowTarjetaNotFound_WhenInvalidIdProvided() {
+    // Arrange
+    Long id = 1L;
+    when(tarjetasRepository.findById(id)).thenReturn(Optional.empty());
+
+    // Act & Assert
+    var res = assertThrows(TarjetaNotFoundException.class, () -> tarjetasService.deleteById(id));
+    assertEquals("Tarjeta con id " + id + " no encontrada", res.getMessage());
+
+    // Verify
+    verify(tarjetasRepository, times(0)).deleteById(id);
   }
 }
