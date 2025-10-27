@@ -59,9 +59,10 @@ public class TarjetasServiceImpl implements TarjetasService {
         .orElseThrow(()-> new TarjetaNotFoundException(id)));
   }
 
-  @Cacheable(key = "#id")
+  // Cachea con el uuid como key
+  @Cacheable(key = "#uuid")
   @Override
-  public TarjetaResponseDto findbyUuid(String uuid) {
+  public TarjetaResponseDto findByUuid(String uuid) {
     log.info("Buscando tarjeta por uuid: {}", uuid);
     try {
       var myUUID = UUID.fromString(uuid);
