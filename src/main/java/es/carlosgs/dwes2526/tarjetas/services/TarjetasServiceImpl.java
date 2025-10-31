@@ -29,7 +29,7 @@ public class TarjetasServiceImpl implements TarjetasService {
 
   @Override
   public List<TarjetaResponseDto> findAll(String numero, String titular) {
-    // Si todo está vacío o nulo, devolvemos todas las tarjetas
+    // Si todos los args están vacíos o nulos, devolvemos todas las tarjetas
     if ((numero == null || numero.isEmpty()) && (titular == null || titular.isEmpty())) {
       log.info("Buscando todas las tarjetas");
       return tarjetaMapper.toResponseDtoList(tarjetasRepository.findAll());
