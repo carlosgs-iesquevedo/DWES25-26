@@ -33,7 +33,7 @@ public class TarjetaMapper {
         .cvc(tarjetaUpdateDto.getCvc() != null ? tarjetaUpdateDto.getCvc() : tarjeta.getCvc())
         .fechaCaducidad(tarjetaUpdateDto.getFechaCaducidad() != null ? tarjetaUpdateDto.getFechaCaducidad() : tarjeta.getFechaCaducidad())
         // Una vez creada la tarjeta, no se puede cambiar el titular
-        //.titular(tarjetaUpdateDto.getTitular() != null ? tarjetaUpdateDto.getTitular() : tarjeta.getTitular())
+        .titular(tarjeta.getTitular())
         .saldo(tarjetaUpdateDto.getSaldo() != null ? tarjetaUpdateDto.getSaldo() : tarjeta.getSaldo())
         .createdAt(tarjeta.getCreatedAt())
         .updatedAt(LocalDateTime.now())

@@ -11,7 +11,7 @@ public interface TarjetasService {
 
   TarjetaResponseDto findById(Long id);
 
-  TarjetaResponseDto findbyUuid(String uuid);
+  TarjetaResponseDto findByUuid(String uuid);
 
   TarjetaResponseDto save(TarjetaCreateDto tarjetaCreateDto);
 

@@ -29,7 +29,7 @@ public class TarjetasServiceImpl implements TarjetasService {
 
   @Override
   public List<TarjetaResponseDto> findAll(String numero, String titular) {
-    // Si todo está vacío o nulo, devolvemos todas las tarjetas
+    // Si todos los args están vacíos o nulos, devolvemos todas las tarjetas
     if ((numero == null || numero.isEmpty()) && (titular == null || titular.isEmpty())) {
       log.info("Buscando todas las tarjetas");
       return tarjetaMapper.toResponseDtoList(tarjetasRepository.findAll());
@@ -59,9 +59,10 @@ public class TarjetasServiceImpl implements TarjetasService {
         .orElseThrow(()-> new TarjetaNotFoundException(id)));
   }
 
-  @Cacheable(key = "#id")
+  // Cachea con el uuid como key
+  @Cacheable(key = "#uuid")
   @Override
-  public TarjetaResponseDto findbyUuid(String uuid) {
+  public TarjetaResponseDto findByUuid(String uuid) {
     log.info("Buscando tarjeta por uuid: {}", uuid);
     try {
       var myUUID = UUID.fromString(uuid);
