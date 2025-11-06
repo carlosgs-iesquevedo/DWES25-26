@@ -96,7 +96,7 @@ class TarjetasServiceImplTest {
     String numero = "1234-5678-1234-5678";
     List<Tarjeta> expectedTarjetas = List.of(tarjeta1);
     List<TarjetaResponseDto> expectedTarjetaResponses = tarjetaMapper.toResponseDtoList(expectedTarjetas);
-    when(tarjetasRepository.findAllByNumero(numero)).thenReturn(expectedTarjetas);
+    when(tarjetasRepository.findByNumero(numero)).thenReturn(expectedTarjetas);
 
     // Act
     List<TarjetaResponseDto> actualTarjetaResponses = tarjetasService.findAll(numero, null);
@@ -106,7 +106,7 @@ class TarjetasServiceImplTest {
 
     // Verify
     // Verifica que solo se ejecuta este método
-    verify(tarjetasRepository, only()).findAllByNumero(numero);
+    verify(tarjetasRepository, only()).findByNumero(numero);
   }
 
   @Test
@@ -115,7 +115,7 @@ class TarjetasServiceImplTest {
     String titular = "Jose";
     List<Tarjeta> expectedTarjetas = List.of(tarjeta1);
     List<TarjetaResponseDto> expectedTarjetaResponses = tarjetaMapper.toResponseDtoList(expectedTarjetas);
-    when(tarjetasRepository.findAllByTitular(titular)).thenReturn(expectedTarjetas);
+    when(tarjetasRepository.findByTitularContainsIgnoreCase(titular)).thenReturn(expectedTarjetas);
 
     // Act
     List<TarjetaResponseDto> actualTarjetaResponses = tarjetasService.findAll(null, titular);
@@ -124,7 +124,7 @@ class TarjetasServiceImplTest {
     assertIterableEquals(expectedTarjetaResponses, actualTarjetaResponses);
 
     // Verify
-    verify(tarjetasRepository, only()).findAllByTitular(titular);
+    verify(tarjetasRepository, only()).findByTitularContainsIgnoreCase(titular);
   }
 
   @Test
@@ -134,7 +134,7 @@ class TarjetasServiceImplTest {
     String titular = "Jose";
     List<Tarjeta> expectedTarjetas = List.of(tarjeta1);
     List<TarjetaResponseDto> expectedTarjetaResponses = tarjetaMapper.toResponseDtoList(expectedTarjetas);
-    when(tarjetasRepository.findAllByNumeroAndTitular(numero, titular)).thenReturn(expectedTarjetas);
+    when(tarjetasRepository.findByNumeroAndTitularContainsIgnoreCase(numero, titular)).thenReturn(expectedTarjetas);
 
     // Act
     List<TarjetaResponseDto> actualTarjetaResponses = tarjetasService.findAll(numero, titular);
@@ -143,7 +143,7 @@ class TarjetasServiceImplTest {
     assertIterableEquals(expectedTarjetaResponses, actualTarjetaResponses);
 
     // Verify
-    verify(tarjetasRepository, only()).findAllByNumeroAndTitular(numero, titular);
+    verify(tarjetasRepository, only()).findByNumeroAndTitularContainsIgnoreCase(numero, titular);
   }
 
   @Test
@@ -233,7 +233,6 @@ class TarjetasServiceImplTest {
         .build();
     TarjetaResponseDto expectedTarjetaResponse = tarjetaMapper.toTarjetaResponseDto(expectedTarjeta);
 
-    when(tarjetasRepository.nextId()).thenReturn(1L);
     when(tarjetasRepository.save(any(Tarjeta.class))).thenReturn(expectedTarjeta);
 
     // Act
@@ -243,7 +242,6 @@ class TarjetasServiceImplTest {
     assertEquals(expectedTarjetaResponse, actualTarjetaResponse);
 
     // Verify
-    verify(tarjetasRepository).nextId();
     verify(tarjetasRepository).save(tarjetaCaptor.capture());
 
     Tarjeta tarjetaCaptured = tarjetaCaptor.getValue();

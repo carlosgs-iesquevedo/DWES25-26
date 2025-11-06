@@ -23,6 +23,7 @@ public class Tarjeta {
   private String numero;
   @Column(nullable = false, length = 3)
   private String cvc;
+  @Column(nullable = false)
   private LocalDate fechaCaducidad;
   @Column(nullable = false, length = 50)
   private String titular;

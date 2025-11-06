@@ -13,9 +13,9 @@ public interface TarjetasRepository extends JpaRepository<Tarjeta, Long> {
   // Otras consultas aparte de las básicas que proporciona la interfaz JpaRepository
 
   // Por número
-  List<Tarjeta> findByNumeroContainsIgnoreCase(String numero);
+  List<Tarjeta> findByNumero(String numero);
   // Por número y que isDeleted sea false
-  List<Tarjeta> findByNumeroContainsIgnoreCaseAndIsDeletedFalse(String numero);
+  List<Tarjeta> findByNumeroAndIsDeletedFalse(String numero);
 
   // Por titular
   List<Tarjeta> findByTitularContainsIgnoreCase(String titular);
@@ -23,7 +23,8 @@ public interface TarjetasRepository extends JpaRepository<Tarjeta, Long> {
   List<Tarjeta> findByTitularContainsIgnoreCaseAndIsDeletedFalse(String titular);
 
   // Por número y titular
-  List<Tarjeta> findByNumeroContainsIgnoreCaseAndTitularContainsIgnoreCaseAndIsDeletedFalse(String numero, String titular);
+  List<Tarjeta> findByNumeroAndTitularContainsIgnoreCase(String numero, String titular);
+  List<Tarjeta> findByNumeroAndTitularContainsIgnoreCaseAndIsDeletedFalse(String numero, String titular);
 
   // Por UUID
   Optional<Tarjeta> findByUuid(UUID uuid);

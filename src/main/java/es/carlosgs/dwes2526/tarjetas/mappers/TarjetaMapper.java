@@ -12,9 +12,9 @@ import java.util.UUID;
 
 @Component
 public class TarjetaMapper {
-  public Tarjeta toTarjeta(Long id, TarjetaCreateDto tarjetaCreateDto) {
+  public Tarjeta toTarjeta(TarjetaCreateDto tarjetaCreateDto) {
     return Tarjeta.builder()
-        .id(id)
+        .id(null)
         .numero(tarjetaCreateDto.getNumero())
         .cvc(tarjetaCreateDto.getCvc())
         .fechaCaducidad(tarjetaCreateDto.getFechaCaducidad())

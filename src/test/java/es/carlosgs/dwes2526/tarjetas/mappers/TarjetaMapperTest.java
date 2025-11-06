@@ -28,7 +28,7 @@ class TarjetaMapperTest {
         .saldo(100.0)
         .build();
     // Act
-    var res = tarjetaMapper.toTarjeta(id, tarjetaCreateDto);
+    var res = tarjetaMapper.toTarjeta(tarjetaCreateDto);
 
     // Assert
     assertAll(

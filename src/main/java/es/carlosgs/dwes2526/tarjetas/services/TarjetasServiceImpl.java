@@ -37,16 +37,16 @@ public class TarjetasServiceImpl implements TarjetasService {
     // Si el numero no está vacío, pero el titular si, buscamos por numero
     if ((numero != null && !numero.isEmpty()) && (titular == null || titular.isEmpty())) {
       log.info("Buscando tarjetas por numero: {}", numero);
-      return tarjetaMapper.toResponseDtoList(tarjetasRepository.findAllByNumero(numero));
+      return tarjetaMapper.toResponseDtoList(tarjetasRepository.findByNumero(numero));
     }
     // Si el numero está vacío, pero el titular no, buscamos por titular
     if (numero == null || numero.isEmpty()) {
       log.info("Buscando tarjetas por titular: {}", titular);
-      return tarjetaMapper.toResponseDtoList(tarjetasRepository.findAllByTitular(titular));
+      return tarjetaMapper.toResponseDtoList(tarjetasRepository.findByTitularContainsIgnoreCase(titular));
     }
     // Si el numero y el titular no están vacíos, buscamos por ambos
     log.info("Buscando tarjetas por numero: {} y titular: {}", numero, titular);
-    return tarjetaMapper.toResponseDtoList(tarjetasRepository.findAllByNumeroAndTitular(numero, titular));
+    return tarjetaMapper.toResponseDtoList(tarjetasRepository.findByNumeroAndTitularContainsIgnoreCase(numero, titular));
   }
 
   // Cachea con el id como key
@@ -79,10 +79,8 @@ public class TarjetasServiceImpl implements TarjetasService {
   @Override
   public TarjetaResponseDto save(TarjetaCreateDto tarjetaCreateDto) {
     log.info("Guardando tarjeta: {}", tarjetaCreateDto);
-    // obtenemos el id de tarjeta
-    Long id = tarjetasRepository.nextId();
     // Creamos la tarjeta nueva con los datos que nos vienen
-    Tarjeta nuevaTarjeta = tarjetaMapper.toTarjeta(id, tarjetaCreateDto);
+    Tarjeta nuevaTarjeta = tarjetaMapper.toTarjeta(tarjetaCreateDto);
     // La guardamos en el repositorio
     return tarjetaMapper.toTarjetaResponseDto(tarjetasRepository.save(nuevaTarjeta));
   }
@@ -108,6 +106,8 @@ public class TarjetasServiceImpl implements TarjetasService {
     tarjetasRepository.findById(id).orElseThrow(()-> new TarjetaNotFoundException(id));
     // La borramos del repositorio si existe
     tarjetasRepository.deleteById(id);
+    // O lo marcamos como borrado
+    //tarjetasRepository.updateIsDeletedToTrueById(id);
 
   }
 
