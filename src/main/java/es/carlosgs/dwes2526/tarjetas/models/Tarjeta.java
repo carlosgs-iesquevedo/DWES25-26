@@ -29,14 +29,18 @@ public class Tarjeta {
   private String titular;
   @Column(nullable = false)
   private Double saldo;
+  @Builder.Default
   @Column(updatable = false, nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-  private LocalDateTime createdAt;
+  private LocalDateTime createdAt = LocalDateTime.now();
   @Column(nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
-  private LocalDateTime updatedAt;
+  @Builder.Default
+  private LocalDateTime updatedAt =  LocalDateTime.now();
   @Column(unique = true, updatable = false, nullable = false)
-  private UUID uuid;
+  @Builder.Default
+  private UUID uuid = UUID.randomUUID();
 
   // nueva columna
   @Column(columnDefinition = "boolean default false")
-  private Boolean isDeleted;
+  @Builder.Default
+  private Boolean isDeleted = false;
 }

@@ -1,4 +1,3 @@
-/*
 -- Borra la tabla si existe
 drop table if exists TARJETAS;
 -- Crea la tabla TARJETAS
@@ -14,9 +13,3 @@ create table TARJETAS (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP not null,
     uuid uuid not null unique
 );
-*/
--- Filas de ejemplo
-INSERT INTO TARJETAS (numero, cvc, fecha_caducidad, titular, saldo, uuid)
-    VALUES ('1234-5678-1234-5678', '555', '2025-12-31', 'Jose', 100.0, UUID());
-INSERT INTO TARJETAS (numero, cvc, fecha_caducidad, titular, saldo, uuid)
-    VALUES ('4321-5678-1234-5678', '234', '2025-12-31', 'Juan', 200.0, UUID());

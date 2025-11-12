@@ -3,6 +3,11 @@ package es.carlosgs.dwes2526.tarjetas.repositories;
 import es.carlosgs.dwes2526.tarjetas.models.Tarjeta;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.test.context.jdbc.Sql;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -12,10 +17,13 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class TarjetasRepositoryImplTest {
+// Reseteamos la base de datos para partir de una situación conocida
+@Sql(value = {"/reset.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+// Vamos a probar el repositorio, pero moqueamos la base de datos JPA
+@DataJpaTest
+class TarjetasRepositoryTest {
 
   private final Tarjeta tarjeta1 = Tarjeta.builder()
-      .id(1L)
       .numero("1234-5678-1234-5678")
       .cvc("555")
       .fechaCaducidad(LocalDate.of(2025,12,31))
@@ -27,7 +35,6 @@ class TarjetasRepositoryImplTest {
       .build();
 
   private final Tarjeta tarjeta2 = Tarjeta.builder()
-      .id(2L)
       .numero("4321-5678-1234-5678")
       .cvc("555")
       .fechaCaducidad(LocalDate.of(2025,12,31))
@@ -38,13 +45,17 @@ class TarjetasRepositoryImplTest {
       .uuid(UUID.fromString("b36835eb-e56a-4023-b058-52bfa600fee5"))
       .build();
 
-  private TarjetasRepositoryImpl repositorio;
+  @Autowired
+  private TarjetasRepository repositorio;
+  @Autowired
+  private TestEntityManager entityManager; // EntityManager para hacer las pruebas
 
   @BeforeEach
   void setUp() {
-    repositorio = new TarjetasRepositoryImpl();
-    repositorio.save(tarjeta1);
-    repositorio.save(tarjeta2);
+    // Vamos a salvar dos tarjetas
+    entityManager.merge(tarjeta1);
+    entityManager.merge(tarjeta2);
+    entityManager.flush();
   }
 
   @Test
@@ -63,7 +74,7 @@ class TarjetasRepositoryImplTest {
   void findAllByNumero() {
     // Act
     String numero = "4321-5678-1234-5678";
-    List<Tarjeta> tarjetas = repositorio.findAllByNumero(numero);
+    List<Tarjeta> tarjetas = repositorio.findByNumero(numero);
 
     // Assert
     assertAll("findAllByNumero",
@@ -77,7 +88,7 @@ class TarjetasRepositoryImplTest {
   void findAllByTitular() {
     // Act
     String titular = "Jose";
-    List<Tarjeta> tarjetas = repositorio.findAllByTitular(titular);
+    List<Tarjeta> tarjetas = repositorio.findByTitularContainsIgnoreCase(titular);
 
     // Assert
     assertAll("findAllByNumero",
@@ -92,7 +103,7 @@ class TarjetasRepositoryImplTest {
     // Act
     String numero = "4321-5678-1234-5678";
     String titular = "Juan";
-    List<Tarjeta> tarjetas = repositorio.findAllByNumeroAndTitular(numero, titular);
+    List<Tarjeta> tarjetas = repositorio.findByNumeroAndTitularContainsIgnoreCase(numero, titular);
     // Assert
     assertAll(
         () -> assertNotNull(tarjetas),
@@ -202,7 +213,6 @@ class TarjetasRepositoryImplTest {
   void save_notExists() {
     // Arrange
     Tarjeta tarjeta = Tarjeta.builder()
-        .id(3L)
         .numero("2222-5678-1234-5678")
         .cvc("123")
         .fechaCaducidad(LocalDate.of(2029,12,31))
@@ -226,18 +236,10 @@ class TarjetasRepositoryImplTest {
   @Test
   void save_butExists() {
     // Arrange
-    Tarjeta tarjeta = Tarjeta.builder().id(1L).build();
+    Tarjeta tarjetaExistente = tarjeta1;
 
-    // Act
-    Tarjeta savedTarjeta = repositorio.save(tarjeta);
-    var all = repositorio.findAll();
-
-    // Assert
-    assertAll("save",
-        () -> assertNotNull(savedTarjeta),
-        () -> assertEquals(tarjeta, savedTarjeta),
-        () -> assertEquals(2, all.size())
-    );
+    // Act & Assert
+    assertThrows(DataIntegrityViolationException.class, () -> repositorio.save(tarjetaExistente));
 
   }
 
@@ -270,16 +272,4 @@ class TarjetasRepositoryImplTest {
     );
   }
 
-  @Test
-  void nextId() {
-    // Act
-    Long nextId = repositorio.nextId();
-    var all = repositorio.findAll();
-
-    // Assert
-    assertAll("nextId",
-        () -> assertEquals(3L, nextId),
-        () -> assertEquals(2, all.size())
-    );
-  }
 }

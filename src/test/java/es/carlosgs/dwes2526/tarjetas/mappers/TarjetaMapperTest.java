@@ -32,7 +32,6 @@ class TarjetaMapperTest {
 
     // Assert
     assertAll(
-        () -> assertEquals(id, res.getId()),
         () -> assertEquals(tarjetaCreateDto.getNumero(), res.getNumero()),
         () -> assertEquals(tarjetaCreateDto.getCvc(), res.getCvc()),
         () -> assertEquals(tarjetaCreateDto.getFechaCaducidad(), res.getFechaCaducidad()),

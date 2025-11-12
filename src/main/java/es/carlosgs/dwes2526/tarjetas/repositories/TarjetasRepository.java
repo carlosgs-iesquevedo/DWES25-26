@@ -28,6 +28,8 @@ public interface TarjetasRepository extends JpaRepository<Tarjeta, Long> {
 
   // Por UUID
   Optional<Tarjeta> findByUuid(UUID uuid);
+  boolean existsByUuid(UUID uuid);
+  void deleteByUuid(UUID uuid);
 
   // Si está borrado
   List<Tarjeta> findByIsDeleted(Boolean isDeleted);
