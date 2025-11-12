@@ -32,7 +32,7 @@ public class Tarjeta {
   @Builder.Default
   @Column(updatable = false, nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
   private LocalDateTime createdAt = LocalDateTime.now();
-  @Column(nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+  @Column(nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
   @Builder.Default
   private LocalDateTime updatedAt =  LocalDateTime.now();
   @Column(unique = true, updatable = false, nullable = false)
