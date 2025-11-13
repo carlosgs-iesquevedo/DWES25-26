@@ -1,19 +1,19 @@
-### getTarjetasAll
+### getAll
 GET http://localhost:3000/api/v1/tarjetas
 
-### getTarjetasAll
+### getAll (RequestParam)
 GET http://localhost:3000/api/v1/tarjetas?numero=1234-5678-1234-5678
 
-### getTarjetasAll
+### getAll  (RequestParam)
 GET http://localhost:3000/api/v1/tarjetas?numero=1234-5678-1234-5678&titular=Juan
 
-### getTarjetasAll
-GET http://localhost:3000/api/v1/tarjetas?titular=Juan
+### getAll  (RequestParam)
+GET http://localhost:3000/api/v1/tarjetas?titular=Jose
 
-### gatTarjetaById
+### gataById
 GET http://localhost:3000/api/v1/tarjetas/1
 
-### gatTarjetaById (una que no existe)
+### gatById (una que no existe)
 GET http://localhost:3000/api/v1/tarjetas/3
 
 ### Nueva tarjeta
@@ -34,7 +34,7 @@ Content-Type: application/json
 
 {
   "numero": "2222-5678-1234-5678",
-  "cvc": "123s",
+  "cvc": "321",
   "fechaCaducidad": "2029-12-31",
   "titular": "María",
   "saldo": 300.0

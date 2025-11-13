@@ -1,5 +1,6 @@
 package es.carlosgs.dwes2526.tarjetas.models;
 
+import es.carlosgs.dwes2526.titulares.models.Titular;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,8 +26,6 @@ public class Tarjeta {
   private String cvc;
   @Column(nullable = false)
   private LocalDate fechaCaducidad;
-  @Column(nullable = false, length = 50)
-  private String titular;
   @Column(nullable = false)
   private Double saldo;
   @Builder.Default
@@ -43,4 +42,9 @@ public class Tarjeta {
   @Column(columnDefinition = "boolean default false")
   @Builder.Default
   private Boolean isDeleted = false;
+
+  // Relación con titulat, muchas tarjetas pueden tener un titular
+  @ManyToOne
+  @JoinColumn(name = "titular_id") // Así se va a llamar en la BD
+  private Titular titular;
 }

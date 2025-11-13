@@ -7,7 +7,7 @@ create table TARJETAS (
     numero varchar(19) not null,
     cvc varchar(3) not null,
     fecha_caducidad date not null,
-    titular varchar(50) not null,
+    titular_id varchar(50) not null,
     saldo float(53) not null,
     is_deleted boolean default false,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP not null,
@@ -16,7 +16,10 @@ create table TARJETAS (
 );
 */
 -- Filas de ejemplo
-INSERT INTO TARJETAS (numero, cvc, fecha_caducidad, titular, saldo, uuid)
-    VALUES ('1234-5678-1234-5678', '555', '2025-12-31', 'Jose', 100.0, UUID());
-INSERT INTO TARJETAS (numero, cvc, fecha_caducidad, titular, saldo, uuid)
-    VALUES ('4321-5678-1234-5678', '234', '2025-12-31', 'Juan', 200.0, UUID());
+INSERT INTO TITULARES (nombre)
+    VALUES ('Carlos'), ('Jose'), ('María');
+
+INSERT INTO TARJETAS (numero, cvc, fecha_caducidad, titular_id, saldo, uuid)
+    VALUES ('1234-5678-1234-5678', '555', '2025-12-31', 2, 100.0, UUID());
+INSERT INTO TARJETAS (numero, cvc, fecha_caducidad, titular_id, saldo, uuid)
+    VALUES ('4321-5678-1234-5678', '234', '2025-12-31', 3, 200.0, UUID());

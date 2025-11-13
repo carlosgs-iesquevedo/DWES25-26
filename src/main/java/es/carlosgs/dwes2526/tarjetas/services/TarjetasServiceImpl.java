@@ -8,6 +8,7 @@ import es.carlosgs.dwes2526.tarjetas.exceptions.TarjetaNotFoundException;
 import es.carlosgs.dwes2526.tarjetas.mappers.TarjetaMapper;
 import es.carlosgs.dwes2526.tarjetas.models.Tarjeta;
 import es.carlosgs.dwes2526.tarjetas.repositories.TarjetasRepository;
+import es.carlosgs.dwes2526.titulares.services.TitularesService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheConfig;
@@ -26,6 +27,7 @@ import java.util.UUID;
 public class TarjetasServiceImpl implements TarjetasService {
   private final TarjetasRepository tarjetasRepository;
   private final TarjetaMapper tarjetaMapper;
+  private final TitularesService titularesService;
 
   @Override
   public List<TarjetaResponseDto> findAll(String numero, String titular) {
@@ -42,11 +44,13 @@ public class TarjetasServiceImpl implements TarjetasService {
     // Si el numero está vacío, pero el titular no, buscamos por titular
     if (numero == null || numero.isEmpty()) {
       log.info("Buscando tarjetas por titular: {}", titular);
-      return tarjetaMapper.toResponseDtoList(tarjetasRepository.findByTitularContainsIgnoreCase(titular));
+      return tarjetaMapper.toResponseDtoList(
+          tarjetasRepository.findByTitularContainsIgnoreCase(titular.toLowerCase()));
     }
     // Si el numero y el titular no están vacíos, buscamos por ambos
     log.info("Buscando tarjetas por numero: {} y titular: {}", numero, titular);
-    return tarjetaMapper.toResponseDtoList(tarjetasRepository.findByNumeroAndTitularContainsIgnoreCase(numero, titular));
+    return tarjetaMapper.toResponseDtoList(
+        tarjetasRepository.findByNumeroAndTitularContainsIgnoreCase(numero, titular.toLowerCase()));
   }
 
   // Cachea con el id como key
@@ -79,8 +83,10 @@ public class TarjetasServiceImpl implements TarjetasService {
   @Override
   public TarjetaResponseDto save(TarjetaCreateDto tarjetaCreateDto) {
     log.info("Guardando tarjeta: {}", tarjetaCreateDto);
+    // Buscamos el titular por su nombre
+    var titular = titularesService.findByNombre(tarjetaCreateDto.getTitular());
     // Creamos la tarjeta nueva con los datos que nos vienen
-    Tarjeta nuevaTarjeta = tarjetaMapper.toTarjeta(tarjetaCreateDto);
+    Tarjeta nuevaTarjeta = tarjetaMapper.toTarjeta(tarjetaCreateDto, titular);
     // La guardamos en el repositorio
     return tarjetaMapper.toTarjetaResponseDto(tarjetasRepository.save(nuevaTarjeta));
   }
@@ -106,7 +112,7 @@ public class TarjetasServiceImpl implements TarjetasService {
     tarjetasRepository.findById(id).orElseThrow(()-> new TarjetaNotFoundException(id));
     // La borramos del repositorio si existe
     tarjetasRepository.deleteById(id);
-    // O lo marcamos como borrado
+    // O lo marcamos como borrado, para evitar problemas de cascada
     //tarjetasRepository.updateIsDeletedToTrueById(id);
 
   }

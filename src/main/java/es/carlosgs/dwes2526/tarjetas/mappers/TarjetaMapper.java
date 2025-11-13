@@ -4,6 +4,7 @@ import es.carlosgs.dwes2526.tarjetas.dto.TarjetaCreateDto;
 import es.carlosgs.dwes2526.tarjetas.dto.TarjetaResponseDto;
 import es.carlosgs.dwes2526.tarjetas.dto.TarjetaUpdateDto;
 import es.carlosgs.dwes2526.tarjetas.models.Tarjeta;
+import es.carlosgs.dwes2526.titulares.models.Titular;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -12,13 +13,13 @@ import java.util.UUID;
 
 @Component
 public class TarjetaMapper {
-  public Tarjeta toTarjeta(TarjetaCreateDto tarjetaCreateDto) {
+  public Tarjeta toTarjeta(TarjetaCreateDto tarjetaCreateDto, Titular titular) {
     return Tarjeta.builder()
         .id(null)
         .numero(tarjetaCreateDto.getNumero())
         .cvc(tarjetaCreateDto.getCvc())
         .fechaCaducidad(tarjetaCreateDto.getFechaCaducidad())
-        .titular(tarjetaCreateDto.getTitular())
+        .titular(titular)
         .saldo(tarjetaCreateDto.getSaldo())
         .uuid(UUID.randomUUID())
         .createdAt(LocalDateTime.now())
@@ -47,7 +48,7 @@ public class TarjetaMapper {
         .numero(tarjeta.getNumero())
         .cvc(tarjeta.getCvc())
         .fechaCaducidad(tarjeta.getFechaCaducidad())
-        .titular(tarjeta.getTitular())
+        .titular(tarjeta.getTitular().getNombre())
         .saldo(tarjeta.getSaldo())
         .createdAt(tarjeta.getCreatedAt())
         .updatedAt(tarjeta.getUpdatedAt())

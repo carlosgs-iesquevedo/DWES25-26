@@ -3,6 +3,7 @@ package es.carlosgs.dwes2526.tarjetas.mappers;
 import es.carlosgs.dwes2526.tarjetas.dto.TarjetaCreateDto;
 import es.carlosgs.dwes2526.tarjetas.dto.TarjetaUpdateDto;
 import es.carlosgs.dwes2526.tarjetas.models.Tarjeta;
+import es.carlosgs.dwes2526.titulares.models.Titular;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -12,6 +13,8 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TarjetaMapperTest {
+
+  private final Titular titular = Titular.builder().nombre("Pepe").build();
 
   // Inyectamos el mapper
   private final TarjetaMapper tarjetaMapper = new TarjetaMapper();
@@ -24,11 +27,11 @@ class TarjetaMapperTest {
         .numero("1234-5678-1234-5678")
         .cvc("555")
         .fechaCaducidad(LocalDate.of(2025,12,31))
-        .titular("Jose")
+        .titular("Pepe")
         .saldo(100.0)
         .build();
     // Act
-    var res = tarjetaMapper.toTarjeta(tarjetaCreateDto);
+    var res = tarjetaMapper.toTarjeta(tarjetaCreateDto, titular);
 
     // Assert
     assertAll(
@@ -78,7 +81,7 @@ class TarjetaMapperTest {
         .numero("1234-5678-1234-5678")
         .cvc("555")
         .fechaCaducidad(LocalDate.of(2025,12,31))
-        .titular("Jose")
+        .titular(titular)
         .saldo(100.0)
         .createdAt(LocalDateTime.now())
         .updatedAt(LocalDateTime.now())

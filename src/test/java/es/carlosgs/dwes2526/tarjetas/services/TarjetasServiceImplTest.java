@@ -8,6 +8,7 @@ import es.carlosgs.dwes2526.tarjetas.exceptions.TarjetaNotFoundException;
 import es.carlosgs.dwes2526.tarjetas.mappers.TarjetaMapper;
 import es.carlosgs.dwes2526.tarjetas.models.Tarjeta;
 import es.carlosgs.dwes2526.tarjetas.repositories.TarjetasRepository;
+import es.carlosgs.dwes2526.titulares.models.Titular;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,13 +26,14 @@ import static org.mockito.Mockito.*;
 // Integra Mockito con JUnit5 para poder usar mocks, espías y capturadores en los tests
 @ExtendWith(MockitoExtension.class)
 class TarjetasServiceImplTest {
+  private final Titular titular = Titular.builder().nombre("Pepe").build();
 
   private final Tarjeta tarjeta1 = Tarjeta.builder()
       .id(1L)
       .numero("1234-5678-1234-5678")
       .cvc("555")
       .fechaCaducidad(LocalDate.of(2025,12,31))
-      .titular("Jose")
+      .titular(titular)
       .saldo(100.0)
       .createdAt(LocalDateTime.now())
       .updatedAt(LocalDateTime.now())
@@ -43,7 +45,7 @@ class TarjetasServiceImplTest {
       .numero("4321-5678-1234-5678")
       .cvc("555")
       .fechaCaducidad(LocalDate.of(2025,12,31))
-      .titular("Juan")
+      .titular(titular)
       .saldo(100.0)
       .createdAt(LocalDateTime.now())
       .updatedAt(LocalDateTime.now())
@@ -225,7 +227,7 @@ class TarjetasServiceImplTest {
         .numero("1111-2222-3333-4444")
         .cvc("123")
         .fechaCaducidad(LocalDate.of(2025,12,31))
-        .titular("Ana")
+        .titular(titular)
         .saldo(123.0)
         .createdAt(LocalDateTime.now())
         .updatedAt(LocalDateTime.now())

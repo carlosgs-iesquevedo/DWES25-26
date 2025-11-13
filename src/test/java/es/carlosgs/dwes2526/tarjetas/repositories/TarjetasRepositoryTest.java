@@ -1,6 +1,7 @@
 package es.carlosgs.dwes2526.tarjetas.repositories;
 
 import es.carlosgs.dwes2526.tarjetas.models.Tarjeta;
+import es.carlosgs.dwes2526.titulares.models.Titular;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,11 +24,13 @@ import static org.junit.jupiter.api.Assertions.*;
 @DataJpaTest
 class TarjetasRepositoryTest {
 
+  private final Titular titular = Titular.builder().nombre("Pepe").build();
+
   private final Tarjeta tarjeta1 = Tarjeta.builder()
       .numero("1234-5678-1234-5678")
       .cvc("555")
       .fechaCaducidad(LocalDate.of(2025,12,31))
-      .titular("Jose")
+      .titular(titular)
       .saldo(100.0)
       .createdAt(LocalDateTime.now())
       .updatedAt(LocalDateTime.now())
@@ -38,7 +41,7 @@ class TarjetasRepositoryTest {
       .numero("4321-5678-1234-5678")
       .cvc("555")
       .fechaCaducidad(LocalDate.of(2025,12,31))
-      .titular("Juan")
+      .titular(titular)
       .saldo(100.0)
       .createdAt(LocalDateTime.now())
       .updatedAt(LocalDateTime.now())
@@ -52,9 +55,11 @@ class TarjetasRepositoryTest {
 
   @BeforeEach
   void setUp() {
+    // Vamos a salvar un titular
+    entityManager.persist(titular);
     // Vamos a salvar dos tarjetas
-    entityManager.merge(tarjeta1);
-    entityManager.merge(tarjeta2);
+    entityManager.persist(tarjeta1);
+    entityManager.persist(tarjeta2);
     entityManager.flush();
   }
 
@@ -216,7 +221,7 @@ class TarjetasRepositoryTest {
         .numero("2222-5678-1234-5678")
         .cvc("123")
         .fechaCaducidad(LocalDate.of(2029,12,31))
-        .titular("María")
+        .titular(titular)
         .saldo(300.0)
         .build();
 
