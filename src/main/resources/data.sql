@@ -11,7 +11,7 @@ create table TARJETAS (
     saldo float(53) not null,
     is_deleted boolean default false,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP not null,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP not null,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP not null,
     uuid uuid not null unique
 );
 */
