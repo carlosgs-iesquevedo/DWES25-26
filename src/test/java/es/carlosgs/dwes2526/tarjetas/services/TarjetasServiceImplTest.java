@@ -9,6 +9,7 @@ import es.carlosgs.dwes2526.tarjetas.mappers.TarjetaMapper;
 import es.carlosgs.dwes2526.tarjetas.models.Tarjeta;
 import es.carlosgs.dwes2526.tarjetas.repositories.TarjetasRepository;
 import es.carlosgs.dwes2526.titulares.models.Titular;
+import es.carlosgs.dwes2526.titulares.services.TitularesService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,6 +58,9 @@ class TarjetasServiceImplTest {
   // usamos el repositorio totalmente simulado
   @Mock
   private TarjetasRepository tarjetasRepository;
+  // usamos el servicio de titulares simulado
+  @Mock
+  private TitularesService titularesService;
   // usamos el mapper real aunque en modo espía que nos permite simular algunas partes del mismo
   @Spy
   private TarjetaMapper tarjetaMapper;
@@ -117,7 +121,7 @@ class TarjetasServiceImplTest {
     String titular = "Jose";
     List<Tarjeta> expectedTarjetas = List.of(tarjeta1);
     List<TarjetaResponseDto> expectedTarjetaResponses = tarjetaMapper.toResponseDtoList(expectedTarjetas);
-    when(tarjetasRepository.findByTitularContainsIgnoreCase(titular)).thenReturn(expectedTarjetas);
+    when(tarjetasRepository.findByTitularContainsIgnoreCase(titular.toLowerCase())).thenReturn(expectedTarjetas);
 
     // Act
     List<TarjetaResponseDto> actualTarjetaResponses = tarjetasService.findAll(null, titular);
@@ -126,7 +130,7 @@ class TarjetasServiceImplTest {
     assertIterableEquals(expectedTarjetaResponses, actualTarjetaResponses);
 
     // Verify
-    verify(tarjetasRepository, only()).findByTitularContainsIgnoreCase(titular);
+    verify(tarjetasRepository, only()).findByTitularContainsIgnoreCase(titular.toLowerCase());
   }
 
   @Test
@@ -136,7 +140,7 @@ class TarjetasServiceImplTest {
     String titular = "Jose";
     List<Tarjeta> expectedTarjetas = List.of(tarjeta1);
     List<TarjetaResponseDto> expectedTarjetaResponses = tarjetaMapper.toResponseDtoList(expectedTarjetas);
-    when(tarjetasRepository.findByNumeroAndTitularContainsIgnoreCase(numero, titular)).thenReturn(expectedTarjetas);
+    when(tarjetasRepository.findByNumeroAndTitularContainsIgnoreCase(numero, titular.toLowerCase())).thenReturn(expectedTarjetas);
 
     // Act
     List<TarjetaResponseDto> actualTarjetaResponses = tarjetasService.findAll(numero, titular);
@@ -145,7 +149,7 @@ class TarjetasServiceImplTest {
     assertIterableEquals(expectedTarjetaResponses, actualTarjetaResponses);
 
     // Verify
-    verify(tarjetasRepository, only()).findByNumeroAndTitularContainsIgnoreCase(numero, titular);
+    verify(tarjetasRepository, only()).findByNumeroAndTitularContainsIgnoreCase(numero, titular.toLowerCase());
   }
 
   @Test
@@ -234,7 +238,7 @@ class TarjetasServiceImplTest {
         .uuid(UUID.randomUUID())
         .build();
     TarjetaResponseDto expectedTarjetaResponse = tarjetaMapper.toTarjetaResponseDto(expectedTarjeta);
-
+    when(titularesService.findByNombre(tarjetaCreateDto.getTitular())).thenReturn(titular);
     when(tarjetasRepository.save(any(Tarjeta.class))).thenReturn(expectedTarjeta);
 
     // Act

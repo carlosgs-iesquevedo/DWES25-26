@@ -38,7 +38,7 @@ class TarjetaMapperTest {
         () -> assertEquals(tarjetaCreateDto.getNumero(), res.getNumero()),
         () -> assertEquals(tarjetaCreateDto.getCvc(), res.getCvc()),
         () -> assertEquals(tarjetaCreateDto.getFechaCaducidad(), res.getFechaCaducidad()),
-        () -> assertEquals(tarjetaCreateDto.getTitular(), res.getTitular()),
+        () -> assertEquals(tarjetaCreateDto.getTitular(), res.getTitular().getNombre()),
         () -> assertEquals(tarjetaCreateDto.getSaldo(), res.getSaldo())
     );
   }
@@ -95,7 +95,7 @@ class TarjetaMapperTest {
         () -> assertEquals(tarjeta.getNumero(), res.getNumero()),
         () -> assertEquals(tarjeta.getCvc(), res.getCvc()),
         () -> assertEquals(tarjeta.getFechaCaducidad(), res.getFechaCaducidad()),
-        () -> assertEquals(tarjeta.getTitular(), res.getTitular()),
+        () -> assertEquals(tarjeta.getTitular().getNombre(), res.getTitular()),
         () -> assertEquals(tarjeta.getSaldo(), res.getSaldo())
     );
   }

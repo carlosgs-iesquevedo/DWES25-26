@@ -10,10 +10,10 @@ GET http://localhost:3000/api/v1/tarjetas?numero=1234-5678-1234-5678&titular=Jua
 ### getAll  (RequestParam)
 GET http://localhost:3000/api/v1/tarjetas?titular=Jose
 
-### gataById
+### getById
 GET http://localhost:3000/api/v1/tarjetas/1
 
-### gatById (una que no existe)
+### getById (una que no existe)
 GET http://localhost:3000/api/v1/tarjetas/3
 
 ### Nueva tarjeta

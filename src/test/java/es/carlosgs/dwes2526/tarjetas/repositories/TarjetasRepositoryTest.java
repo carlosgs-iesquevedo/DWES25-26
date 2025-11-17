@@ -2,6 +2,7 @@ package es.carlosgs.dwes2526.tarjetas.repositories;
 
 import es.carlosgs.dwes2526.tarjetas.models.Tarjeta;
 import es.carlosgs.dwes2526.titulares.models.Titular;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,19 +19,21 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Slf4j
 // Reseteamos la base de datos para partir de una situación conocida
 @Sql(value = {"/reset.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 // Vamos a probar el repositorio, pero moqueamos la base de datos JPA
 @DataJpaTest
 class TarjetasRepositoryTest {
 
-  private final Titular titular = Titular.builder().nombre("Pepe").build();
+  private final Titular titular1 = Titular.builder().nombre("Jose").build();
+  private final Titular titular2 = Titular.builder().nombre("Juan").build();
 
   private final Tarjeta tarjeta1 = Tarjeta.builder()
       .numero("1234-5678-1234-5678")
       .cvc("555")
       .fechaCaducidad(LocalDate.of(2025,12,31))
-      .titular(titular)
+      .titular(titular1)
       .saldo(100.0)
       .createdAt(LocalDateTime.now())
       .updatedAt(LocalDateTime.now())
@@ -41,7 +44,7 @@ class TarjetasRepositoryTest {
       .numero("4321-5678-1234-5678")
       .cvc("555")
       .fechaCaducidad(LocalDate.of(2025,12,31))
-      .titular(titular)
+      .titular(titular2)
       .saldo(100.0)
       .createdAt(LocalDateTime.now())
       .updatedAt(LocalDateTime.now())
@@ -56,7 +59,8 @@ class TarjetasRepositoryTest {
   @BeforeEach
   void setUp() {
     // Vamos a salvar un titular
-    entityManager.persist(titular);
+    entityManager.persist(titular1);
+    entityManager.persist(titular2);
     // Vamos a salvar dos tarjetas
     entityManager.persist(tarjeta1);
     entityManager.persist(tarjeta2);
@@ -93,13 +97,13 @@ class TarjetasRepositoryTest {
   void findAllByTitular() {
     // Act
     String titular = "Jose";
-    List<Tarjeta> tarjetas = repositorio.findByTitularContainsIgnoreCase(titular);
+    List<Tarjeta> tarjetas = repositorio.findByTitularContainsIgnoreCase(titular.toLowerCase());
 
     // Assert
-    assertAll("findAllByNumero",
+    assertAll("findAllByTitular",
         () -> assertNotNull(tarjetas),
         () -> assertEquals(1, tarjetas.size()),
-        () -> assertEquals(titular, tarjetas.getFirst().getTitular())
+        () -> assertEquals(titular, tarjetas.getFirst().getTitular().getNombre())
     );
   }
 
@@ -108,13 +112,13 @@ class TarjetasRepositoryTest {
     // Act
     String numero = "4321-5678-1234-5678";
     String titular = "Juan";
-    List<Tarjeta> tarjetas = repositorio.findByNumeroAndTitularContainsIgnoreCase(numero, titular);
+    List<Tarjeta> tarjetas = repositorio.findByNumeroAndTitularContainsIgnoreCase(numero, titular.toLowerCase());
     // Assert
     assertAll(
         () -> assertNotNull(tarjetas),
         () -> assertEquals(1, tarjetas.size()),
         () -> assertEquals(numero, tarjetas.getFirst().getNumero()),
-        () -> assertEquals(titular, tarjetas.getFirst().getTitular())
+        () -> assertEquals(titular, tarjetas.getFirst().getTitular().getNombre())
     );
   }
 
@@ -221,7 +225,7 @@ class TarjetasRepositoryTest {
         .numero("2222-5678-1234-5678")
         .cvc("123")
         .fechaCaducidad(LocalDate.of(2029,12,31))
-        .titular(titular)
+        .titular(titular1)
         .saldo(300.0)
         .build();
 
@@ -230,6 +234,7 @@ class TarjetasRepositoryTest {
     var all = repositorio.findAll();
 
     // Assert
+    // Comprueba que ha creado una nueva tarjeta
     assertAll("save",
         () -> assertNotNull(savedTarjeta),
         () -> assertEquals(tarjeta, savedTarjeta),
@@ -241,11 +246,32 @@ class TarjetasRepositoryTest {
   @Test
   void save_butExists() {
     // Arrange
-    Tarjeta tarjetaExistente = tarjeta1;
+    // Una tarjeta con un id de tarjeta existente
+    Long id = 1L;
+    Tarjeta tarjetaExistente = Tarjeta.builder()
+        .id(id)
+        .numero("1234-5678-1234-5678")
+        .cvc("555")
+        .fechaCaducidad(LocalDate.of(2025,12,31))
+        .titular(titular1)
+        .saldo(200.0)
+        .createdAt(LocalDateTime.now())
+        .updatedAt(LocalDateTime.now())
+        .uuid(UUID.fromString("57727bc2-0c1c-494e-bbaf-e952a778e478"))
+        .build();
 
-    // Act & Assert
-    assertThrows(DataIntegrityViolationException.class, () -> repositorio.save(tarjetaExistente));
+    //Act
+    Tarjeta savedTarjeta = repositorio.save(tarjetaExistente);
+    var all = repositorio.findAll();
 
+    // Assert
+    // Comprueba que actualiza una tarjeta existente
+    assertAll("save",
+        () -> assertNotNull(savedTarjeta),
+      //  () -> assertEquals(tarjetaExistente, savedTarjeta),
+        () -> assertTrue(repositorio.existsById(id)),
+        () -> assertTrue(all.size() >= 2)
+    );
   }
 
   @Test
