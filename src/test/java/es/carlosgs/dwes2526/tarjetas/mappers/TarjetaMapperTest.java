@@ -22,7 +22,6 @@ class TarjetaMapperTest {
   @Test
   void toTarjeta_create() {
     // Arrange
-    Long id = 1L;
     TarjetaCreateDto tarjetaCreateDto = TarjetaCreateDto.builder()
         .numero("1234-5678-1234-5678")
         .cvc("555")
