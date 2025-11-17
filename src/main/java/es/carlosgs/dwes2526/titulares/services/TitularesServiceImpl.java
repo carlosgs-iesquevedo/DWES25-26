@@ -27,7 +27,7 @@ public class TitularesServiceImpl implements TitularesService {
 
   @Override
   public List<Titular> findAll(String nombre) {
-    log.info("Buscando titulares por nombre: {}", nombre);
+    log.info("Buscando titulares");
     if (nombre == null || nombre.isEmpty()) {
       return titularesRepository.findAll();
     } else {
