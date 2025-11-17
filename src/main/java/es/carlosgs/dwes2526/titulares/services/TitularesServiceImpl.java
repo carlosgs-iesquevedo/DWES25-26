@@ -54,6 +54,10 @@ public class TitularesServiceImpl implements TitularesService {
   @CachePut
   public Titular save(TitularRequestDto titularRequestDto) {
     log.info("Guardando titular: {}", titularRequestDto);
+    // No debe existir dos titulares con el mismo nombre
+    titularesRepository.findByNombreEqualsIgnoreCase(titularRequestDto.getNombre()).ifPresent(tit -> {
+      throw new TitularConflictException("Ya existe un titular con el nombre " + titularRequestDto.getNombre());
+    });
     return titularesRepository.save(titularesMapper.toTitular(titularRequestDto));
   }
 
@@ -62,6 +66,12 @@ public class TitularesServiceImpl implements TitularesService {
   public Titular update(Long id, TitularRequestDto titularRequestDto) {
     log.info("Actualizando titular: {}", titularRequestDto);
     Titular titularActual = findById(id);
+    // No debe existir dos titulares con el mismo nombre
+    titularesRepository.findByNombreEqualsIgnoreCase(titularRequestDto.getNombre()).ifPresent(tit -> {
+      if (!tit.getId().equals(id)) {
+        throw new TitularConflictException("Ya existe un titular con el nombre " + titularRequestDto.getNombre());
+      }
+    });
     // Actualizamos los datos
     return titularesRepository.save(titularesMapper.toTitular(titularRequestDto, titularActual));
   }
@@ -76,7 +86,6 @@ public class TitularesServiceImpl implements TitularesService {
     // O lo marcamos como borrado, para evitar problemas de cascada, no podemos borrar titulares con tarjetas!!!
     // La otra forma es que comprobaramos si hay tarjetas para borrarlas antes
     // tarjetasRepository.updateIsDeletedToTrueById(id);
-    // Otra forma es comprobar si hay tarjetas para borrarlas antes
     if (titularesRepository.existsTarjetaById(id)) {
       String mensaje = "No se puede borrar el titular con id: " + id + " porque tiene tarjetas asociadas";
       log.warn(mensaje);
