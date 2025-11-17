@@ -36,8 +36,10 @@ public class TarjetaMapper {
         // Una vez creada la tarjeta, no se puede cambiar el titular
         .titular(tarjeta.getTitular())
         .saldo(tarjetaUpdateDto.getSaldo() != null ? tarjetaUpdateDto.getSaldo() : tarjeta.getSaldo())
-        .createdAt(tarjeta.getCreatedAt())
-        .updatedAt(LocalDateTime.now())
+        // no tenemos en cuenta estos campos porque hemos definido valores por defecto en la entidad
+        // y automatismos en la base de datos
+        // .createdAt(tarjeta.getCreatedAt())
+        // .updatedAt(LocalDateTime.now())
         .uuid(tarjeta.getUuid())
         .build();
   }
