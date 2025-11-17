@@ -27,7 +27,7 @@ public class TitularesRestController {
 
   @GetMapping()
   public ResponseEntity<List<Titular>> getAll(@RequestParam(required = false) String nombre) {
-    log.info("Buscando todos los titulares con nombre: " + nombre);
+    log.info("Buscando todos los titulares con nombre: {}", nombre);
     return ResponseEntity.ok(titularesService.findAll(nombre));
   }
 
