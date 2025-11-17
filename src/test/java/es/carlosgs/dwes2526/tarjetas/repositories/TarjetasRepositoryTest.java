@@ -2,7 +2,6 @@ package es.carlosgs.dwes2526.tarjetas.repositories;
 
 import es.carlosgs.dwes2526.tarjetas.models.Tarjeta;
 import es.carlosgs.dwes2526.titulares.models.Titular;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,6 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@Slf4j
 // Reseteamos la base de datos para partir de una situación conocida
 @Sql(value = {"/reset.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 // Vamos a probar el repositorio, pero moqueamos la base de datos JPA
