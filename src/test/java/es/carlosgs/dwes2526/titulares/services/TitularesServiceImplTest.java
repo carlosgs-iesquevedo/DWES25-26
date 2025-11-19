@@ -25,9 +25,6 @@ class TitularesServiceImplTest {
 
   @Mock
   private TitularesRepository titularesRepository;
-  // usamos el mapper real aunque en modo espía que nos permite simular algunas partes del mismo
-  @Spy
-  private TitularesMapper titularesMapper;
   // Es la clase que se testea y a la que se inyectan los mocks y espías automáticamente
   @InjectMocks
   private TitularesServiceImpl titularesService;
