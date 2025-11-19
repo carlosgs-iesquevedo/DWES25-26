@@ -1,8 +1,5 @@
 package es.carlosgs.dwes2526.titulares.services;
 
-import es.carlosgs.dwes2526.tarjetas.mappers.TarjetaMapper;
-import es.carlosgs.dwes2526.tarjetas.repositories.TarjetasRepository;
-import es.carlosgs.dwes2526.tarjetas.services.TarjetasServiceImpl;
 import es.carlosgs.dwes2526.titulares.dto.TitularRequestDto;
 import es.carlosgs.dwes2526.titulares.exceptions.TitularConflictException;
 import es.carlosgs.dwes2526.titulares.mappers.TitularesMapper;

@@ -1,9 +1,7 @@
 package es.carlosgs.dwes2526.titulares.controllers;
 
-import es.carlosgs.dwes2526.tarjetas.dto.TarjetaCreateDto;
-import es.carlosgs.dwes2526.tarjetas.dto.TarjetaResponseDto;
-import es.carlosgs.dwes2526.tarjetas.exceptions.TarjetaNotFoundException;
 import es.carlosgs.dwes2526.titulares.dto.TitularRequestDto;
+import es.carlosgs.dwes2526.titulares.exceptions.TitularConflictException;
 import es.carlosgs.dwes2526.titulares.exceptions.TitularNotFoundException;
 import es.carlosgs.dwes2526.titulares.models.Titular;
 import es.carlosgs.dwes2526.titulares.services.TitularesService;
@@ -16,11 +14,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
@@ -55,9 +51,9 @@ class TitularesRestControllerTest {
                 .bodyJson().satisfies(json -> {
                     assertThat(json).extractingPath("$.length()").isEqualTo(titulares.size());
                     assertThat(json).extractingPath("$[0]")
-                            .convertTo(Titular.class).isEqualTo(titular1);
+                            .convertTo(Titular.class).usingRecursiveComparison().isEqualTo(titular1);
                     assertThat(json).extractingPath("$[1]")
-                            .convertTo(Titular.class).isEqualTo(titular2);
+                            .convertTo(Titular.class).usingRecursiveComparison().isEqualTo(titular2);
                 });
 
         // Verify
@@ -83,7 +79,7 @@ class TitularesRestControllerTest {
                 .bodyJson().satisfies(json -> {
                     assertThat(json).extractingPath("$.length()").isEqualTo(titulares.size());
                     assertThat(json).extractingPath("$[0]")
-                            .convertTo(Titular.class).isEqualTo(titular2);
+                            .convertTo(Titular.class).usingRecursiveComparison().isEqualTo(titular2);
                 });
 
         // Verify
@@ -106,7 +102,7 @@ class TitularesRestControllerTest {
         assertThat(result)
                 .hasStatusOk()
                 .bodyJson()
-                .convertTo(Titular.class).isEqualTo(titular1);
+                .convertTo(Titular.class).usingRecursiveComparison().isEqualTo(titular1);
 
         // Verify
         verify(titularesService, only()).findById(anyLong());
@@ -117,7 +113,7 @@ class TitularesRestControllerTest {
     void getById_shouldThrowTitularNotFound_whenInvalidIdProvided() {
         // Arrange
         Long id = 3L;
-        when(titularesService.findById(anyLong())).thenThrow(new TarjetaNotFoundException(id));
+        when(titularesService.findById(anyLong())).thenThrow(new TitularNotFoundException(id));
 
         // Act
         var result = mockMvcTester.get()
@@ -130,7 +126,7 @@ class TitularesRestControllerTest {
                 // throws TarjetaNotFoundException
                 .hasFailed().failure()
                 .isInstanceOf(TitularNotFoundException.class)
-                .hasMessageContaining("no encontrada");
+                .hasMessageContaining("no encontrado");
 
         // Verify
         verify(titularesService, only()).findById(anyLong());
@@ -165,6 +161,7 @@ class TitularesRestControllerTest {
                 .hasStatus(HttpStatus.CREATED)
                 .bodyJson()
                 .convertTo(Titular.class)
+                .usingRecursiveComparison()
                 .isEqualTo(titularSaved);
 
         verify(titularesService, only()).save(any(TitularRequestDto.class));
@@ -193,9 +190,8 @@ class TitularesRestControllerTest {
         assertThat(result)
                 .hasStatus(HttpStatus.BAD_REQUEST)
                 .bodyJson()
-                .hasPathSatisfying("$.errores", path -> {
-                    assertThat(path).hasFieldOrProperty("nombre");
-                });
+                .hasPathSatisfying("$.errores", path ->
+                    assertThat(path).hasFieldOrProperty("nombre"));
 
 
         verify(titularesService, never()).save(any(TitularRequestDto.class));
@@ -204,35 +200,191 @@ class TitularesRestControllerTest {
 
     @Test
     void create_whenNombreExists() {
-        // TODO
+      // Arrange
+      String requestBody = """
+           {
+              "nombre": "Jose"
+           }
+           """;
+
+      when(titularesService.save(any(TitularRequestDto.class)))
+          .thenThrow(new TitularConflictException("Ya existe un titular con el nombre Jose"));
+
+
+      // Act
+      var result = mockMvcTester.post()
+          .uri(ENDPOINT)
+          .contentType(MediaType.APPLICATION_JSON)
+          .content(requestBody)
+          .exchange();
+
+      // Assert
+      assertThat(result)
+          .hasStatus(HttpStatus.CONFLICT)
+          // throws TitularesConflictEsception
+          .hasFailed().failure()
+          .isInstanceOf(TitularConflictException.class)
+          .hasMessageContaining("Ya existe un titular");
+
+
+      verify(titularesService, only()).save(any(TitularRequestDto.class));
     }
 
     @Test
     void update() {
-        // TODO
+      // Arrange
+      Long id = 1L;
+      String requestBody = """
+           {
+              "nombre": "JOSE"
+           }
+           """;
+
+      var titularSaved = Titular.builder()
+          .id(1L)
+          .nombre("JOSE")
+          .build();
+
+      when(titularesService.update(anyLong(), any(TitularRequestDto.class))).thenReturn(titularSaved);
+
+      // Act
+      var result = mockMvcTester.put()
+          .uri(ENDPOINT+ "/" + id)
+          .contentType(MediaType.APPLICATION_JSON)
+          .content(requestBody)
+          .exchange();
+
+      // Assert
+      assertThat(result)
+          .hasStatusOk()
+          .bodyJson()
+          .convertTo(Titular.class)
+          .usingRecursiveComparison()
+          .isEqualTo(titularSaved);
+
+      verify(titularesService, only()).update(anyLong(), any(TitularRequestDto.class));
     }
 
     @Test
-    void update_shouldThrowTitularaNotFound() {
-        // TODO
+    void update_shouldThrowTitularNotFound() {
+      // Arrange
+      Long id = 3L;
+      String requestBody = """
+           {
+              "nombre": "JOSE"
+           }
+           """;
+      when(titularesService.update(anyLong(), any(TitularRequestDto.class))).thenThrow(new TitularNotFoundException(id));
+
+      // Act
+      var result = mockMvcTester.put()
+          .uri(ENDPOINT + "/" + id)
+          .contentType(MediaType.APPLICATION_JSON)
+          .content(requestBody)
+          .exchange();
+
+      assertThat(result)
+          .hasStatus(HttpStatus.NOT_FOUND)
+          // throws TarjetaNotFoundException
+          .hasFailed().failure()
+          .isInstanceOf(TitularNotFoundException.class)
+          .hasMessageContaining("no encontrado");
+
+      // Verify
+      verify(titularesService, only()).update(anyLong(), any());
     }
 
     @Test
     void update_shouldThrowBadRequest() {
-        // TODO
+      // Arrange
+      Long id = 3L;
+      String requestBody = """
+           {
+              "nombre": null
+           }
+           """;
+
+      // Act
+      var result = mockMvcTester.put()
+          .uri(ENDPOINT + "/" + id)
+          .contentType(MediaType.APPLICATION_JSON)
+          .content(requestBody)
+          .exchange();
+
+      // Assert
+      assertThat(result)
+          .hasStatus(HttpStatus.BAD_REQUEST)
+          .bodyJson()
+          .hasPathSatisfying("$.errores", path ->
+              assertThat(path).hasFieldOrProperty("nombre"));
+
+
+      verify(titularesService, never()).update(anyLong(), any(TitularRequestDto.class));
     }
 
     @Test
     void update_whenNombreExists() {
-        // TODO
+      // Arrange
+      Long id = 1L;
+      String requestBody = """
+           {
+              "nombre": "Jose"
+           }
+           """;
+
+      when(titularesService.update(anyLong(), any(TitularRequestDto.class)))
+          .thenThrow(new TitularConflictException("Ya existe un titular con el nombre Jose"));
+
+
+      // Act
+      var result = mockMvcTester.put()
+          .uri(ENDPOINT + "/" + id)
+          .contentType(MediaType.APPLICATION_JSON)
+          .content(requestBody)
+          .exchange();
+
+      // Assert
+      assertThat(result)
+          .hasStatus(HttpStatus.CONFLICT)
+          // throws TitularesConflictEsception
+          .hasFailed().failure()
+          .isInstanceOf(TitularConflictException.class)
+          .hasMessageContaining("Ya existe un titular");
+
+      verify(titularesService, only()).update(anyLong(), any(TitularRequestDto.class));
     }
 
     @Test
     void delete() {
-        // TODO
+      // Arrange
+      Long id = 1L;
+      doNothing().when(titularesService).deleteById(anyLong());
+      // Act
+      var result = mockMvcTester.delete()
+          .uri(ENDPOINT+ "/" + id)
+          .exchange();
+      // Assert
+      assertThat(result)
+          .hasStatus(HttpStatus.NO_CONTENT);
+
+      verify(titularesService, only()).deleteById(anyLong());
     }
 
+  @Test
+  void delete_shouldThrowTitularaNotFound() {
+    // Arrange
+    Long id = 1L;
+    doThrow(new TitularNotFoundException(id)).when(titularesService).deleteById(anyLong());
+    // Act
+    var result = mockMvcTester.delete()
+        .uri(ENDPOINT+ "/" + id)
+        .exchange();
+    // Assert
+    assertThat(result)
+        .hasStatus(HttpStatus.NOT_FOUND);
 
+    verify(titularesService, only()).deleteById(anyLong());
+  }
 
 
 

@@ -52,7 +52,7 @@ class TitularesRepositoryTest {
     assertAll("findAllByNombre",
         () -> assertNotNull(titulares),
         () -> assertFalse(titulares.isEmpty()),
-        () -> assertEquals("Jose", titulares.get(0).getNombre())
+        () -> assertEquals("Jose", titulares.getFirst().getNombre())
     );
   }
 
