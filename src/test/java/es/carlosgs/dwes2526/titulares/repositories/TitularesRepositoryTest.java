@@ -28,6 +28,7 @@ class TitularesRepositoryTest {
   void setUp() {
     // Insertamos un titular antes de cada test
     entityManager.persist(titular);
+    // Sincroniza los cambios en los objetos del contexto de persistencia con la BD
     entityManager.flush();
   }
 
@@ -114,6 +115,19 @@ class TitularesRepositoryTest {
 
     // Assert
     assertNull(titularBorrado);
+  }
+
+  // Para comprobar la diferencia entre usar FetchType.EAGER o LAZY en la relación de titular con tarjetas
+  // hay que añadir o quitar fetch = FetchType.EAGER a la anotación @OneToMany.  No se puede hacer por código.
+  // En este tipo de relación la opción por defecto es LAZY.
+  @Test
+  void test_FetchType_EAGER_vs_LAZY() {
+    // Vacía la cache del contexto de persistencia (L1 Cache) para poder ver todas
+    // las consultas a la BD en la consola
+    entityManager.clear();
+
+    Titular titular = repositorio.findById(1L).orElse(null);
+    assertNotNull(titular);
   }
 
 }
