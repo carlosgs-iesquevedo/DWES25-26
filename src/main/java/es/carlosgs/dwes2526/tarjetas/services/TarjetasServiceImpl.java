@@ -1,5 +1,9 @@
 package es.carlosgs.dwes2526.tarjetas.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import es.carlosgs.dwes2526.config.websockets.WebSocketConfig;
+import es.carlosgs.dwes2526.config.websockets.WebSocketHandler;
 import es.carlosgs.dwes2526.tarjetas.dto.TarjetaCreateDto;
 import es.carlosgs.dwes2526.tarjetas.dto.TarjetaResponseDto;
 import es.carlosgs.dwes2526.tarjetas.dto.TarjetaUpdateDto;
@@ -9,14 +13,19 @@ import es.carlosgs.dwes2526.tarjetas.mappers.TarjetaMapper;
 import es.carlosgs.dwes2526.tarjetas.models.Tarjeta;
 import es.carlosgs.dwes2526.tarjetas.repositories.TarjetasRepository;
 import es.carlosgs.dwes2526.titulares.services.TitularesService;
+import es.carlosgs.dwes2526.websockets.notifications.dto.TarjetaNotificationResponse;
+import es.carlosgs.dwes2526.websockets.notifications.mappers.TarjetaNotificationMapper;
+import es.carlosgs.dwes2526.websockets.notifications.models.Notificacion;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,10 +33,19 @@ import java.util.UUID;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class TarjetasServiceImpl implements TarjetasService {
+public class TarjetasServiceImpl implements TarjetasService, InitializingBean {
   private final TarjetasRepository tarjetasRepository;
   private final TarjetaMapper tarjetaMapper;
   private final TitularesService titularesService;
+
+  private final WebSocketConfig webSocketConfig;
+  private final ObjectMapper objectMapper;
+  private final TarjetaNotificationMapper tarjetaNotificationMapper;
+  private WebSocketHandler webSocketService;
+
+  public void afterPropertiesSet() {
+    this.webSocketService = this.webSocketConfig.webSocketTarjetasHandler();
+  }
 
   @Override
   public List<TarjetaResponseDto> findAll(String numero, String titular) {
@@ -41,7 +59,7 @@ public class TarjetasServiceImpl implements TarjetasService {
       log.info("Buscando tarjetas por numero: {}", numero);
       return tarjetaMapper.toResponseDtoList(tarjetasRepository.findByNumero(numero));
     }
-    // Si el numero está vacío, pero el titular no, buscamos por titular
+    // Si el número está vacío, pero el titular no, buscamos por titular
     if (numero == null || numero.isEmpty()) {
       log.info("Buscando tarjetas por titular: {}", titular);
       return tarjetaMapper.toResponseDtoList(
@@ -85,10 +103,13 @@ public class TarjetasServiceImpl implements TarjetasService {
     log.info("Guardando tarjeta: {}", tarjetaCreateDto);
     // Buscamos el titular por su nombre
     var titular = titularesService.findByNombre(tarjetaCreateDto.getTitular());
-    // Creamos la tarjeta nueva con los datos que nos vienen
-    Tarjeta nuevaTarjeta = tarjetaMapper.toTarjeta(tarjetaCreateDto, titular);
+    // Creamos la tarjeta nueva con los datos que nos vienen y la guardamos en el repositorio
+    Tarjeta tarjetaSaved = tarjetasRepository.save(
+        tarjetaMapper.toTarjeta(tarjetaCreateDto, titular));
+    // Enviamos la notificación a los clientes ws
+    onChange(Notificacion.Tipo.CREATE, tarjetaSaved);
     // La guardamos en el repositorio
-    return tarjetaMapper.toTarjetaResponseDto(tarjetasRepository.save(nuevaTarjeta));
+    return tarjetaMapper.toTarjetaResponseDto(tarjetaSaved);
   }
 
   @CachePut(key = "#result.id")
@@ -97,10 +118,13 @@ public class TarjetasServiceImpl implements TarjetasService {
     log.info("Actualizando tarjeta por id: {}", id);
     // Si no existe lanza excepción
     var tarjetaActual = tarjetasRepository.findById(id).orElseThrow(()-> new TarjetaNotFoundException(id));
-    // Actualizamos la tarjeta con los datos que nos vienen
-    Tarjeta tarjetaActualizada =  tarjetaMapper.toTarjeta(tarjetaUpdateDto, tarjetaActual);
+    // Actualizamos la tarjeta con los datos que nos vienen y la guardamos en el repositorio
+    Tarjeta tarjetaUpdated =  tarjetasRepository.save(
+        tarjetaMapper.toTarjeta(tarjetaUpdateDto, tarjetaActual));
+    // Enviamos la notificación a los clientes ws
+    onChange(Notificacion.Tipo.UPDATE, tarjetaUpdated);
     // La guardamos en el repositorio
-    return tarjetaMapper.toTarjetaResponseDto(tarjetasRepository.save(tarjetaActualizada));
+    return tarjetaMapper.toTarjetaResponseDto(tarjetaUpdated);
   }
 
   // El key es opcional, si no se indica
@@ -109,12 +133,51 @@ public class TarjetasServiceImpl implements TarjetasService {
   public void deleteById(Long id) {
     log.debug("Borrando tarjeta por id: {}", id);
     // Si no existe lanza excepción
-    tarjetasRepository.findById(id).orElseThrow(()-> new TarjetaNotFoundException(id));
+    Tarjeta tarjetaDeleted = tarjetasRepository.findById(id).orElseThrow(()-> new TarjetaNotFoundException(id));
     // La borramos del repositorio si existe
     tarjetasRepository.deleteById(id);
     // O lo marcamos como borrado, para evitar problemas de cascada
     //tarjetasRepository.updateIsDeletedToTrueById(id);
+    // Enviamos la notificación a los clientes ws
+    onChange(Notificacion.Tipo.DELETE, tarjetaDeleted);
 
+  }
+
+  void onChange(Notificacion.Tipo tipo, Tarjeta data) {
+    log.debug("Servicio de productos onChange con tipo: {} y datos: {}", tipo, data);
+
+    if (webSocketService == null) {
+      log.warn("No se ha podido enviar la notificación a los clientes ws, no se ha encontrado el servicio");
+      webSocketService = this.webSocketConfig.webSocketTarjetasHandler();
+    }
+
+    try {
+      Notificacion<TarjetaNotificationResponse> notificacion = new Notificacion<>(
+          "TARJETAS",
+          tipo,
+          tarjetaNotificationMapper.toTarjetaNotificationDto(data),
+          LocalDateTime.now().toString()
+      );
+
+      String json = objectMapper.writeValueAsString((notificacion));
+
+      log.info("Enviando mensaje a los clientes ws");
+      // Enviamos el mensaje a los clientes ws con un hilo, si hay muchos clientes, puede tardar.
+      // No bloqueamos el hilo principal que atiende las peticiones http
+      Thread senderThread = new Thread(() -> {
+        try {
+          webSocketService.sendMessage(json);
+        } catch (Exception e) {
+          log.error("Error al enviar el mensaje a través del servicio WebSocket", e);
+        }
+      });
+      senderThread.setName("WebSocketTarjeta-" + data.getId());
+      senderThread.setDaemon(true); // Para que no impida que la aplicación se cierre
+      senderThread.start();
+      log.info("Hilo de websocket iniciado: {}", data.getId());
+    } catch (JsonProcessingException e) {
+      log.error("Error al convertir la notificación a JSON", e);
+    }
   }
 
 }
