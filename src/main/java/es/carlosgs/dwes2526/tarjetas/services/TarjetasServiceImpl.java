@@ -47,6 +47,11 @@ public class TarjetasServiceImpl implements TarjetasService, InitializingBean {
     this.webSocketService = this.webSocketConfig.webSocketTarjetasHandler();
   }
 
+  // Para que en los test se pueda inicializar
+  public void setWebSocketService(WebSocketHandler webSocketHandler) {
+    this.webSocketService = webSocketHandler;
+  }
+
   @Override
   public List<TarjetaResponseDto> findAll(String numero, String titular) {
     // Si todos los args están vacíos o nulos, devolvemos todas las tarjetas
