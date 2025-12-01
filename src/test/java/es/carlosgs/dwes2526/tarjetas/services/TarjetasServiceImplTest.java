@@ -1,5 +1,8 @@
 package es.carlosgs.dwes2526.tarjetas.services;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import es.carlosgs.dwes2526.config.websockets.WebSocketConfig;
+import es.carlosgs.dwes2526.config.websockets.WebSocketHandler;
 import es.carlosgs.dwes2526.tarjetas.dto.TarjetaCreateDto;
 import es.carlosgs.dwes2526.tarjetas.dto.TarjetaResponseDto;
 import es.carlosgs.dwes2526.tarjetas.dto.TarjetaUpdateDto;
@@ -10,12 +13,15 @@ import es.carlosgs.dwes2526.tarjetas.models.Tarjeta;
 import es.carlosgs.dwes2526.tarjetas.repositories.TarjetasRepository;
 import es.carlosgs.dwes2526.titulares.models.Titular;
 import es.carlosgs.dwes2526.titulares.services.TitularesService;
+import es.carlosgs.dwes2526.websockets.notifications.mappers.TarjetaNotificationMapper;
+import es.carlosgs.dwes2526.websockets.notifications.models.Notificacion;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -64,6 +70,16 @@ class TarjetasServiceImplTest {
   // usamos el mapper real aunque en modo espía que nos permite simular algunas partes del mismo
   @Spy
   private TarjetaMapper tarjetaMapper;
+  // La parte de WebSockets también simulada
+  @Mock
+  private WebSocketConfig webSocketConfig;
+  @Mock
+  private TarjetaNotificationMapper tarjetaNotificationMapper;
+  @Mock
+  private ObjectMapper objectMapper;
+  @Mock
+  private WebSocketHandler webSocketService;
+
   // Es la clase que se testea y a la que se inyectan los mocks y espías automáticamente
   @InjectMocks
   private TarjetasServiceImpl tarjetasService;
@@ -76,6 +92,7 @@ class TarjetasServiceImplTest {
     tarjetaResponse1 = tarjetaMapper.toTarjetaResponseDto(tarjeta1);
     // Quizá no la necesitemos
     // tarjetaResponse2 = tarjetaMapper.toTarjetaResponseDto(tarjeta2);
+    tarjetasService.setWebSocketService(webSocketService);
   }
 
   @Test
@@ -217,7 +234,7 @@ class TarjetasServiceImplTest {
   }
 
   @Test
-  void save_ShouldReturnSavedTarjeta_WhenValidTarjetaCreateDtoProvided() {
+  void save_ShouldReturnSavedTarjeta_WhenValidTarjetaCreateDtoProvided()  throws IOException {
     // Arrange
     TarjetaCreateDto tarjetaCreateDto = TarjetaCreateDto.builder()
         .numero("1111-2222-3333-4444")
@@ -240,6 +257,7 @@ class TarjetasServiceImplTest {
     TarjetaResponseDto expectedTarjetaResponse = tarjetaMapper.toTarjetaResponseDto(expectedTarjeta);
     when(titularesService.findByNombre(tarjetaCreateDto.getTitular())).thenReturn(titular);
     when(tarjetasRepository.save(any(Tarjeta.class))).thenReturn(expectedTarjeta);
+    doNothing().when(webSocketService).sendMessage(any());
 
     // Act
     TarjetaResponseDto actualTarjetaResponse = tarjetasService.save(tarjetaCreateDto);
@@ -259,7 +277,7 @@ class TarjetasServiceImplTest {
   }
 
   @Test
-  void update_ShouldReturnUpdatedTarjeta_WhenValidIdAndtarjetaUpdateDtoProvided() {
+  void update_ShouldReturnUpdatedTarjeta_WhenValidIdAndtarjetaUpdateDtoProvided() throws  IOException {
     // Arrange
     Long id = 1L;
     Double saldo = 500.0;
@@ -273,6 +291,7 @@ class TarjetasServiceImplTest {
 
     tarjetaResponse1.setSaldo(saldo);
     TarjetaResponseDto expectedTarjetaResponse = tarjetaResponse1;
+    doNothing().when(webSocketService).sendMessage(any());
 
     // Act
     TarjetaResponseDto actualTarjetaResponse = tarjetasService.update(id, tarjetaUpdateDto);
@@ -317,10 +336,11 @@ class TarjetasServiceImplTest {
   }
 
   @Test
-  void deleteById_ShouldDeleteTarjeta_WhenValidIdProvided() {
+  void deleteById_ShouldDeleteTarjeta_WhenValidIdProvided() throws IOException {
     // Arrange
     Long id = 1L;
     when(tarjetasRepository.findById(id)).thenReturn(Optional.of(tarjeta1));
+    doNothing().when(webSocketService).sendMessage(any());
 
     // Act
     // con AssertJ
@@ -348,5 +368,14 @@ class TarjetasServiceImplTest {
 
     // Verify
     verify(tarjetasRepository, never()).deleteById(id);
+  }
+
+  @Test
+  void onChange_ShouldSendMessage_WhenValidDataProvided() throws IOException {
+    // Arrange
+    doNothing().when(webSocketService).sendMessage(any());
+
+    // Act
+    tarjetasService.onChange(Notificacion.Tipo.CREATE, tarjeta1);
   }
 }
