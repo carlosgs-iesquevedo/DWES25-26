@@ -46,3 +46,7 @@ DELETE http://localhost:3000/api/v1/tarjetas/2
 
 ### Paginación y ordenación
 GET http://localhost:3000/api/v1/tarjetas?sortBy=titular&direction=desc
+###
+GET http://localhost:3000/api/v1/tarjetas?sortBy=titular&direction=desc&size=1
+###
+GET http://localhost:3000/api/v1/tarjetas?sortBy=titular&direction=desc&size=1&page=0
