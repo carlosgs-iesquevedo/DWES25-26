@@ -9,6 +9,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -54,7 +58,9 @@ class TarjetasRestControllerTest {
   void getAll() {
     // Arrange
     var tarjetaResponses = List.of(tarjetaResponse1, tarjetaResponse2);
-    when(tarjetasService.findAll(null, null)).thenReturn(tarjetaResponses);
+    var pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
+    var page = new PageImpl<>(tarjetaResponses);
+    when(tarjetasService.findAll(null, null, pageable)).thenReturn(page);
 
     // Act. Consultar el endpoint
     var result = mockMvcTester.get()
@@ -66,15 +72,15 @@ class TarjetasRestControllerTest {
     assertThat(result)
         .hasStatusOk()
         .bodyJson().satisfies(json -> {
-          assertThat(json).extractingPath("$.length()").isEqualTo(tarjetaResponses.size());
-          assertThat(json).extractingPath("$[0]")
+          assertThat(json).extractingPath("$.content.length()").isEqualTo(tarjetaResponses.size());
+          assertThat(json).extractingPath("$.content[0]")
               .convertTo(TarjetaResponseDto.class).isEqualTo(tarjetaResponse1);
-          assertThat(json).extractingPath("$[1]")
+          assertThat(json).extractingPath("$.content[1]")
               .convertTo(TarjetaResponseDto.class).isEqualTo(tarjetaResponse2);
         });
 
     // Verify
-    verify(tarjetasService, times(1)).findAll(null, null);
+    verify(tarjetasService, times(1)).findAll(null, null, pageable);
   }
 
   @Test
@@ -82,7 +88,8 @@ class TarjetasRestControllerTest {
     // Arrange
     var tarjetaResponses = List.of(tarjetaResponse2);
     String queryString = "?numero=" + tarjetaResponse2.getNumero();
-    when(tarjetasService.findAll(anyString(), isNull())).thenReturn(tarjetaResponses);
+    var page = new PageImpl<>(tarjetaResponses);
+    when(tarjetasService.findAll(anyString(), isNull(), any(Pageable.class))).thenReturn(page);
 
     // Act
     var result = mockMvcTester.get()
@@ -94,13 +101,13 @@ class TarjetasRestControllerTest {
     assertThat(result)
         .hasStatusOk()
         .bodyJson().satisfies(json -> {
-          assertThat(json).extractingPath("$.length()").isEqualTo(tarjetaResponses.size());
-          assertThat(json).extractingPath("$[0]")
+          assertThat(json).extractingPath("$.content.length()").isEqualTo(tarjetaResponses.size());
+          assertThat(json).extractingPath("$.content[0]")
               .convertTo(TarjetaResponseDto.class).isEqualTo(tarjetaResponse2);
         });
 
     // Verify
-    verify(tarjetasService, times(1)).findAll(anyString(), isNull());
+    verify(tarjetasService, times(1)).findAll(anyString(), isNull(), any(Pageable.class));
   }
 
   @Test
@@ -108,7 +115,8 @@ class TarjetasRestControllerTest {
     // Arrange
     var tarjetaResponses = List.of(tarjetaResponse2);
     String queryString = "?titular=" + tarjetaResponse2.getTitular();
-    when(tarjetasService.findAll(isNull(), anyString())).thenReturn(tarjetaResponses);
+    var page = new PageImpl<>(tarjetaResponses);
+    when(tarjetasService.findAll(isNull(), anyString(), any(Pageable.class))).thenReturn(page);
 
     // Act
     var result = mockMvcTester.get()
@@ -120,13 +128,13 @@ class TarjetasRestControllerTest {
     assertThat(result)
         .hasStatusOk()
         .bodyJson().satisfies(json -> {
-          assertThat(json).extractingPath("$.length()").isEqualTo(tarjetaResponses.size());
-          assertThat(json).extractingPath("$[0]")
+          assertThat(json).extractingPath("$.content.length()").isEqualTo(tarjetaResponses.size());
+          assertThat(json).extractingPath("$.content[0]")
               .convertTo(TarjetaResponseDto.class).isEqualTo(tarjetaResponse2);
         });
 
     // Verify
-    verify(tarjetasService, only()).findAll(isNull(), anyString());
+    verify(tarjetasService, only()).findAll(isNull(), anyString(), any(Pageable.class));
   }
 
   @Test
@@ -135,7 +143,8 @@ class TarjetasRestControllerTest {
     var tarjetaResponses = List.of(tarjetaResponse2);
     String queryString = "?numero=" + tarjetaResponse2.getNumero() + "&"
         + "titular=" + tarjetaResponse2.getTitular();
-    when(tarjetasService.findAll(anyString(), anyString())).thenReturn(tarjetaResponses);
+    var page = new PageImpl<>(tarjetaResponses);
+    when(tarjetasService.findAll(anyString(), anyString(), any(Pageable.class))).thenReturn(page);
 
     // Act
     var result = mockMvcTester.get()
@@ -147,13 +156,13 @@ class TarjetasRestControllerTest {
     assertThat(result)
         .hasStatusOk()
         .bodyJson().satisfies(json -> {
-          assertThat(json).extractingPath("$.length()").isEqualTo(tarjetaResponses.size());
-          assertThat(json).extractingPath("$[0]")
+          assertThat(json).extractingPath("$.content.length()").isEqualTo(tarjetaResponses.size());
+          assertThat(json).extractingPath("$.content[0]")
               .convertTo(TarjetaResponseDto.class).isEqualTo(tarjetaResponse2);
         });
 
     // Verify
-    verify(tarjetasService, only()).findAll(anyString(), anyString());
+    verify(tarjetasService, only()).findAll(anyString(), anyString(), any(Pageable.class));
   }
 
 

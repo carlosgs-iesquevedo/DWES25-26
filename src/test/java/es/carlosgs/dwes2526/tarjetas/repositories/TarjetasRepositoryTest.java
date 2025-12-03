@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.data.domain.*;
 import org.springframework.test.context.jdbc.Sql;
 
 import java.time.LocalDate;
@@ -76,31 +77,38 @@ class TarjetasRepositoryTest {
     );
   }
 
+
+
   @Test
   void findAllByNumero() {
     // Act
     String numero = "4321-5678-1234-5678";
-    List<Tarjeta> tarjetas = repositorio.findByNumero(numero);
+    Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
+    Page<Tarjeta> page = repositorio.findByNumero(numero, pageable);
 
     // Assert
     assertAll("findAllByNumero",
-        () -> assertNotNull(tarjetas),
-        () -> assertEquals(1, tarjetas.size()),
-        () -> assertEquals(numero, tarjetas.getFirst().getNumero())
+        () -> assertNotNull(page),
+        () -> assertFalse(page.isEmpty()),
+        () -> assertEquals(1, page.getTotalElements()),
+        () -> assertEquals(numero, page.getContent().getFirst().getNumero())
     );
   }
+
 
   @Test
   void findAllByTitular() {
     // Act
     String titular = "Jose";
-    List<Tarjeta> tarjetas = repositorio.findByTitularContainsIgnoreCase(titular.toLowerCase());
+    Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
+    Page<Tarjeta> page = repositorio.findByTitularContainsIgnoreCase(titular.toLowerCase(), pageable);
 
     // Assert
     assertAll("findAllByTitular",
-        () -> assertNotNull(tarjetas),
-        () -> assertEquals(1, tarjetas.size()),
-        () -> assertEquals(titular, tarjetas.getFirst().getTitular().getNombre())
+        () -> assertNotNull(page),
+        () -> assertFalse(page.isEmpty()),
+        () -> assertEquals(1, page.getTotalElements()),
+        () -> assertEquals(titular, page.getContent().getFirst().getTitular().getNombre())
     );
   }
 
@@ -109,13 +117,15 @@ class TarjetasRepositoryTest {
     // Act
     String numero = "4321-5678-1234-5678";
     String titular = "Juan";
-    List<Tarjeta> tarjetas = repositorio.findByNumeroAndTitularContainsIgnoreCase(numero, titular.toLowerCase());
+    Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
+    Page<Tarjeta> page = repositorio.findByNumeroAndTitularContainsIgnoreCase(numero, titular.toLowerCase(), pageable);
     // Assert
     assertAll(
-        () -> assertNotNull(tarjetas),
-        () -> assertEquals(1, tarjetas.size()),
-        () -> assertEquals(numero, tarjetas.getFirst().getNumero()),
-        () -> assertEquals(titular, tarjetas.getFirst().getTitular().getNombre())
+        () -> assertNotNull(page),
+        () -> assertFalse(page.isEmpty()),
+        () -> assertEquals(1, page.getTotalElements()),
+        () -> assertEquals(numero, page.getContent().getFirst().getNumero()),
+        () -> assertEquals(titular, page.getContent().getFirst().getTitular().getNombre())
     );
   }
 
