@@ -6,9 +6,13 @@ import es.carlosgs.dwes2526.tarjetas.dto.TarjetaUpdateDto;
 import es.carlosgs.dwes2526.tarjetas.exceptions.TarjetaBadRequestException;
 import es.carlosgs.dwes2526.tarjetas.exceptions.TarjetaNotFoundException;
 import es.carlosgs.dwes2526.tarjetas.services.TarjetasService;
+import es.carlosgs.dwes2526.utils.pagination.PageResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +22,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -47,10 +50,19 @@ public class TarjetasRestController {
    * @return Lista de tarjetas
    */
   @GetMapping()
-  public ResponseEntity<List<TarjetaResponseDto>> getAll(@RequestParam(required = false) String numero,
-                                                      @RequestParam(required = false) String titular) {
+  public ResponseEntity<PageResponse<TarjetaResponseDto>> getAll(@RequestParam(required = false) String numero,
+                                                         @RequestParam(required = false) String titular,
+                                                         @RequestParam(defaultValue = "0") int page,
+                                                         @RequestParam(defaultValue = "10") int size,
+                                                         @RequestParam(defaultValue = "id") String sortBy,
+                                                         @RequestParam(defaultValue = "asc") String direction) {
     log.info("Buscando tarjetas por numero={}, titular={}", numero, titular);
-    return ResponseEntity.ok(tarjetasService.findAll(numero, titular));
+    // Creamos el objeto de ordenación
+    Sort sort = direction.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+    // Creamos cómo va a ser la paginación
+    Pageable pageable = PageRequest.of(page, size, sort);
+    PageResponse<TarjetaResponseDto> response = PageResponse.of(tarjetasService.findAll(numero, titular, pageable), sortBy, direction);
+    return ResponseEntity.ok(response);
   }
 
   /**

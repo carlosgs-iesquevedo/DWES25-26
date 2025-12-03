@@ -23,6 +23,8 @@ import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -53,27 +55,27 @@ public class TarjetasServiceImpl implements TarjetasService, InitializingBean {
   }
 
   @Override
-  public List<TarjetaResponseDto> findAll(String numero, String titular) {
+  public Page<TarjetaResponseDto> findAll(String numero, String titular, Pageable pageable) {
     // Si todos los args están vacíos o nulos, devolvemos todas las tarjetas
     if ((numero == null || numero.isEmpty()) && (titular == null || titular.isEmpty())) {
       log.info("Buscando todas las tarjetas");
-      return tarjetaMapper.toResponseDtoList(tarjetasRepository.findAll());
+      return tarjetasRepository.findAll(pageable).map(tarjetaMapper::toTarjetaResponseDto);
     }
     // Si el numero no está vacío, pero el titular si, buscamos por numero
     if ((numero != null && !numero.isEmpty()) && (titular == null || titular.isEmpty())) {
       log.info("Buscando tarjetas por numero: {}", numero);
-      return tarjetaMapper.toResponseDtoList(tarjetasRepository.findByNumero(numero));
+      return tarjetasRepository.findByNumero(numero, pageable).map(tarjetaMapper::toTarjetaResponseDto);
     }
     // Si el número está vacío, pero el titular no, buscamos por titular
     if (numero == null || numero.isEmpty()) {
       log.info("Buscando tarjetas por titular: {}", titular);
-      return tarjetaMapper.toResponseDtoList(
-          tarjetasRepository.findByTitularContainsIgnoreCase(titular.toLowerCase()));
+      return tarjetasRepository.findByTitularContainsIgnoreCase(titular.toLowerCase(),pageable)
+          .map(tarjetaMapper::toTarjetaResponseDto);
     }
     // Si el numero y el titular no están vacíos, buscamos por ambos
     log.info("Buscando tarjetas por numero: {} y titular: {}", numero, titular);
-    return tarjetaMapper.toResponseDtoList(
-        tarjetasRepository.findByNumeroAndTitularContainsIgnoreCase(numero, titular.toLowerCase()));
+    return tarjetasRepository.findByNumeroAndTitularContainsIgnoreCase(numero, titular.toLowerCase(), pageable)
+        .map(tarjetaMapper::toTarjetaResponseDto);
   }
 
   // Cachea con el id como key
