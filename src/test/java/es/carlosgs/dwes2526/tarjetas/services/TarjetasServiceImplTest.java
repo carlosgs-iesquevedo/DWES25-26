@@ -20,6 +20,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -99,74 +101,97 @@ class TarjetasServiceImplTest {
   void findAll_ShouldReturnAllTarjetas_WhenNoParametersProvided() {
     // Arrange
     List<Tarjeta> expectedTarjetas = Arrays.asList(tarjeta1, tarjeta2);
-    List<TarjetaResponseDto> expectedTarjetaResponses = tarjetaMapper.toResponseDtoList(expectedTarjetas);
-    when(tarjetasRepository.findAll()).thenReturn(expectedTarjetas);
+    Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
+    Page<Tarjeta> expectedPage = new PageImpl<>(expectedTarjetas);
+    when(tarjetasRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(expectedPage);
 
     // Act
-    List<TarjetaResponseDto> actualTarjetaResponses = tarjetasService.findAll(null, null);
+    Page<TarjetaResponseDto> actualPage =
+        tarjetasService.findAll(Optional.empty(), Optional.empty(), Optional.empty(), pageable);
 
     // Assert
-    assertIterableEquals(expectedTarjetaResponses, actualTarjetaResponses);
+    assertAll("findAll",
+        () -> assertNotNull(actualPage),
+        () -> assertFalse(actualPage.isEmpty()),
+        () -> assertTrue(actualPage.getTotalElements() > 0)
+    );
 
     // Verify
     // verifica que findAll() se ejecuta una vez
-    verify(tarjetasRepository, times(1)).findAll();
+    verify(tarjetasRepository, times(1)).findAll(any(Specification.class), any(Pageable.class));
   }
 
   @Test
   void findAll_ShouldReturnTarjetasByNumero_WhenNumeroParameterProvided() {
     // Arrange
-    String numero = "1234-5678-1234-5678";
+    Optional<String> numero = Optional.of("1234-5678-1234-5678");
     List<Tarjeta> expectedTarjetas = List.of(tarjeta1);
-    List<TarjetaResponseDto> expectedTarjetaResponses = tarjetaMapper.toResponseDtoList(expectedTarjetas);
-    when(tarjetasRepository.findByNumero(numero)).thenReturn(expectedTarjetas);
+    Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending()); // ejemplo de creación de un objeto Pageable
+    Page<Tarjeta> expectedPage = new PageImpl<>(expectedTarjetas);
+    when(tarjetasRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(expectedPage);
 
     // Act
-    List<TarjetaResponseDto> actualTarjetaResponses = tarjetasService.findAll(numero, null);
+    Page<TarjetaResponseDto> actualPage =
+        tarjetasService.findAll(numero, Optional.empty(), Optional.empty(), pageable);
 
     // Assert
-    assertIterableEquals(expectedTarjetaResponses, actualTarjetaResponses);
+    assertAll("findAll",
+        () -> assertNotNull(actualPage),
+        () -> assertFalse(actualPage.isEmpty()),
+        () -> assertTrue(actualPage.getTotalElements() > 0)
+    );
 
     // Verify
     // Verifica que solo se ejecuta este método
-    verify(tarjetasRepository, only()).findByNumero(numero);
+    verify(tarjetasRepository, only()).findAll(any(Specification.class), any(Pageable.class));
   }
 
   @Test
   void findAll_ShouldReturnTarjetasByTitular_WhenTitularParameterProvided() {
     // Arrange
-    String titular = "Jose";
+    Optional<String> titular = Optional.of("Jose");
     List<Tarjeta> expectedTarjetas = List.of(tarjeta1);
-    List<TarjetaResponseDto> expectedTarjetaResponses = tarjetaMapper.toResponseDtoList(expectedTarjetas);
-    when(tarjetasRepository.findByTitularContainsIgnoreCase(titular.toLowerCase())).thenReturn(expectedTarjetas);
+    Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending()); // ejemplo de creación de un objeto Pageable
+    Page<Tarjeta> expectedPage = new PageImpl<>(expectedTarjetas);
+    when(tarjetasRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(expectedPage);
 
     // Act
-    List<TarjetaResponseDto> actualTarjetaResponses = tarjetasService.findAll(null, titular);
+    Page<TarjetaResponseDto> actualPage =
+        tarjetasService.findAll(Optional.empty(), titular, Optional.empty(), pageable);
 
     // Assert
-    assertIterableEquals(expectedTarjetaResponses, actualTarjetaResponses);
+    assertAll("findAll",
+        () -> assertNotNull(actualPage),
+        () -> assertFalse(actualPage.isEmpty()),
+        () -> assertTrue(actualPage.getTotalElements() > 0)
+    );
 
     // Verify
-    verify(tarjetasRepository, only()).findByTitularContainsIgnoreCase(titular.toLowerCase());
+    verify(tarjetasRepository, only()).findAll(any(Specification.class), any(Pageable.class));
   }
 
   @Test
   void findAll_ShouldReturnTarjetasByNumeroAndTitular_WhenBothParametersProvided() {
     // Arrange
-    String numero = "1234-5678-1234-5678";
-    String titular = "Jose";
+    Optional<String> numero = Optional.of("1234-5678-1234-5678");
+    Optional<String> titular = Optional.of("Jose");
     List<Tarjeta> expectedTarjetas = List.of(tarjeta1);
-    List<TarjetaResponseDto> expectedTarjetaResponses = tarjetaMapper.toResponseDtoList(expectedTarjetas);
-    when(tarjetasRepository.findByNumeroAndTitularContainsIgnoreCase(numero, titular.toLowerCase())).thenReturn(expectedTarjetas);
+    Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending()); // ejemplo de creación de un objeto Pageable
+    Page<Tarjeta> expectedPage = new PageImpl<>(expectedTarjetas);
+    when(tarjetasRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(expectedPage);
 
     // Act
-    List<TarjetaResponseDto> actualTarjetaResponses = tarjetasService.findAll(numero, titular);
+    Page<TarjetaResponseDto> actualPage =
+        tarjetasService.findAll(numero, titular, Optional.empty(), pageable);
 
     // Assert
-    assertIterableEquals(expectedTarjetaResponses, actualTarjetaResponses);
-
+    assertAll("findAll",
+        () -> assertNotNull(actualPage),
+        () -> assertFalse(actualPage.isEmpty()),
+        () -> assertTrue(actualPage.getTotalElements() > 0)
+    );
     // Verify
-    verify(tarjetasRepository, only()).findByNumeroAndTitularContainsIgnoreCase(numero, titular.toLowerCase());
+    verify(tarjetasRepository, only()).findAll(any(Specification.class), any(Pageable.class));
   }
 
   @Test

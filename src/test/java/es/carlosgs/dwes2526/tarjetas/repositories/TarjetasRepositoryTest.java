@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.data.domain.*;
 import org.springframework.test.context.jdbc.Sql;
 
 import java.time.LocalDate;
@@ -76,48 +77,6 @@ class TarjetasRepositoryTest {
     );
   }
 
-  @Test
-  void findAllByNumero() {
-    // Act
-    String numero = "4321-5678-1234-5678";
-    List<Tarjeta> tarjetas = repositorio.findByNumero(numero);
-
-    // Assert
-    assertAll("findAllByNumero",
-        () -> assertNotNull(tarjetas),
-        () -> assertEquals(1, tarjetas.size()),
-        () -> assertEquals(numero, tarjetas.getFirst().getNumero())
-    );
-  }
-
-  @Test
-  void findAllByTitular() {
-    // Act
-    String titular = "Jose";
-    List<Tarjeta> tarjetas = repositorio.findByTitularContainsIgnoreCase(titular.toLowerCase());
-
-    // Assert
-    assertAll("findAllByTitular",
-        () -> assertNotNull(tarjetas),
-        () -> assertEquals(1, tarjetas.size()),
-        () -> assertEquals(titular, tarjetas.getFirst().getTitular().getNombre())
-    );
-  }
-
-  @Test
-  void findAllByNumeroAndTitular() {
-    // Act
-    String numero = "4321-5678-1234-5678";
-    String titular = "Juan";
-    List<Tarjeta> tarjetas = repositorio.findByNumeroAndTitularContainsIgnoreCase(numero, titular.toLowerCase());
-    // Assert
-    assertAll(
-        () -> assertNotNull(tarjetas),
-        () -> assertEquals(1, tarjetas.size()),
-        () -> assertEquals(numero, tarjetas.getFirst().getNumero()),
-        () -> assertEquals(titular, tarjetas.getFirst().getTitular().getNombre())
-    );
-  }
 
   @Test
   void findById_existingId_returnsOptionalWithTarjeta() {

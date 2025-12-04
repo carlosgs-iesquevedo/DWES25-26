@@ -5,6 +5,7 @@ import es.carlosgs.dwes2526.tarjetas.dto.TarjetaResponseDto;
 import es.carlosgs.dwes2526.tarjetas.dto.TarjetaUpdateDto;
 import es.carlosgs.dwes2526.tarjetas.models.Tarjeta;
 import es.carlosgs.dwes2526.titulares.models.Titular;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -63,6 +64,11 @@ public class TarjetaMapper {
     return tarjetas.stream()
         .map(this::toTarjetaResponseDto)
         .toList();
+  }
+
+  // Mapeamos de modelo a DTO (page)
+  public Page<TarjetaResponseDto> toResponseDtoPage(Page<Tarjeta> tarjetas) {
+    return tarjetas.map(this::toTarjetaResponseDto);
   }
 
 }

@@ -12,10 +12,12 @@ import es.carlosgs.dwes2526.tarjetas.exceptions.TarjetaNotFoundException;
 import es.carlosgs.dwes2526.tarjetas.mappers.TarjetaMapper;
 import es.carlosgs.dwes2526.tarjetas.models.Tarjeta;
 import es.carlosgs.dwes2526.tarjetas.repositories.TarjetasRepository;
+import es.carlosgs.dwes2526.titulares.models.Titular;
 import es.carlosgs.dwes2526.titulares.services.TitularesService;
 import es.carlosgs.dwes2526.websockets.notifications.dto.TarjetaNotificationResponse;
 import es.carlosgs.dwes2526.websockets.notifications.mappers.TarjetaNotificationMapper;
 import es.carlosgs.dwes2526.websockets.notifications.models.Notificacion;
+import jakarta.persistence.criteria.Join;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
@@ -23,10 +25,13 @@ import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @CacheConfig(cacheNames = {"tarjetas"})
@@ -53,27 +58,31 @@ public class TarjetasServiceImpl implements TarjetasService, InitializingBean {
   }
 
   @Override
-  public List<TarjetaResponseDto> findAll(String numero, String titular) {
-    // Si todos los args están vacíos o nulos, devolvemos todas las tarjetas
-    if ((numero == null || numero.isEmpty()) && (titular == null || titular.isEmpty())) {
-      log.info("Buscando todas las tarjetas");
-      return tarjetaMapper.toResponseDtoList(tarjetasRepository.findAll());
-    }
-    // Si el numero no está vacío, pero el titular si, buscamos por numero
-    if ((numero != null && !numero.isEmpty()) && (titular == null || titular.isEmpty())) {
-      log.info("Buscando tarjetas por numero: {}", numero);
-      return tarjetaMapper.toResponseDtoList(tarjetasRepository.findByNumero(numero));
-    }
-    // Si el número está vacío, pero el titular no, buscamos por titular
-    if (numero == null || numero.isEmpty()) {
-      log.info("Buscando tarjetas por titular: {}", titular);
-      return tarjetaMapper.toResponseDtoList(
-          tarjetasRepository.findByTitularContainsIgnoreCase(titular.toLowerCase()));
-    }
-    // Si el numero y el titular no están vacíos, buscamos por ambos
-    log.info("Buscando tarjetas por numero: {} y titular: {}", numero, titular);
-    return tarjetaMapper.toResponseDtoList(
-        tarjetasRepository.findByNumeroAndTitularContainsIgnoreCase(numero, titular.toLowerCase()));
+  public Page<TarjetaResponseDto> findAll(Optional<String> numero, Optional<String> titular, Optional<Boolean> isDeleted, Pageable pageable) {
+    log.info("Buscando tarjetas por numero: {}, titular: {} , isDeleted {}", numero, titular, isDeleted);
+    // Criterio de búsqueda por número
+    Specification<Tarjeta> specNumeroTarjeta = (root, query, criteriaBuilder) ->
+        numero.map(n -> criteriaBuilder.like(criteriaBuilder.lower(root.get("numero")), "%" + n.toLowerCase() + "%"))
+            .orElseGet(() -> criteriaBuilder.isTrue(criteriaBuilder.literal(true))); // Si no hay numero, no filtramos
+
+    // Criterio de búsqueda por titular
+    Specification<Tarjeta> specTitularTarjeta = (root, query, criteriaBuilder) ->
+        titular.map(t -> {
+          Join<Tarjeta, Titular> titularJoin = root.join("titular");
+          return criteriaBuilder.like(criteriaBuilder.lower(titularJoin.get("nombre")), "%" + t.toLowerCase() + "%");
+        }).orElseGet(() -> criteriaBuilder.isTrue(criteriaBuilder.literal(true))); // Si no hay titular, no filtramo
+
+    // Criterio de búsqueda por isDeleted
+    Specification<Tarjeta> specIsDeleted = (root, query, criteriaBuilder) ->
+        isDeleted.map(d -> criteriaBuilder.equal(root.get("isDeleted"), d))
+            .orElseGet(() -> criteriaBuilder.isTrue(criteriaBuilder.literal(true)));
+
+    // Combinamos las especificaciones
+    Specification<Tarjeta> criterio = Specification.allOf(specNumeroTarjeta, specTitularTarjeta, specIsDeleted);
+
+    return tarjetasRepository.findAll(criterio, pageable)
+        .map(tarjetaMapper::toTarjetaResponseDto);
+
   }
 
   // Cachea con el id como key

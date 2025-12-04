@@ -3,11 +3,13 @@ package es.carlosgs.dwes2526.tarjetas.services;
 import es.carlosgs.dwes2526.tarjetas.dto.TarjetaCreateDto;
 import es.carlosgs.dwes2526.tarjetas.dto.TarjetaResponseDto;
 import es.carlosgs.dwes2526.tarjetas.dto.TarjetaUpdateDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
-import java.util.List;
+import java.util.Optional;
 
 public interface TarjetasService {
-  List<TarjetaResponseDto> findAll(String numero, String titular);
+  Page<TarjetaResponseDto> findAll(Optional<String> numero, Optional<String> titular, Optional<Boolean> isDeleted, Pageable pageable);
 
   TarjetaResponseDto findById(Long id);
 
