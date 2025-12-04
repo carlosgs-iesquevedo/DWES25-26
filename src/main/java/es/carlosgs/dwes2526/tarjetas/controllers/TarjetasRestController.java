@@ -53,7 +53,8 @@ public class TarjetasRestController {
    *
    * @param numero    Número de la tarjeta
    * @param titular   Titular de la tarjeta
-   * @return Lista de tarjetas
+   * @param isDeleted Si está borrada o no
+   * @return Lista paginada de tarjetas
    */
   @GetMapping()
   public ResponseEntity<PageResponse<TarjetaResponseDto>> getAll(

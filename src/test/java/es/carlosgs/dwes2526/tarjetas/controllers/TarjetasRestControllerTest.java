@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -60,7 +61,8 @@ class TarjetasRestControllerTest {
     var tarjetaResponses = List.of(tarjetaResponse1, tarjetaResponse2);
     var pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
     var page = new PageImpl<>(tarjetaResponses);
-    when(tarjetasService.findAll(null, null, pageable)).thenReturn(page);
+    when(tarjetasService.findAll(Optional.empty(), Optional.empty(), Optional.empty(), pageable))
+        .thenReturn(page);
 
     // Act. Consultar el endpoint
     var result = mockMvcTester.get()
@@ -80,7 +82,8 @@ class TarjetasRestControllerTest {
         });
 
     // Verify
-    verify(tarjetasService, times(1)).findAll(null, null, pageable);
+    verify(tarjetasService, times(1))
+        .findAll(Optional.empty(), Optional.empty(), Optional.empty(), pageable);
   }
 
   @Test
@@ -88,8 +91,11 @@ class TarjetasRestControllerTest {
     // Arrange
     var tarjetaResponses = List.of(tarjetaResponse2);
     String queryString = "?numero=" + tarjetaResponse2.getNumero();
+    Optional<String> numero = Optional.of(tarjetaResponse2.getNumero());
+    var pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
     var page = new PageImpl<>(tarjetaResponses);
-    when(tarjetasService.findAll(anyString(), isNull(), any(Pageable.class))).thenReturn(page);
+    when(tarjetasService.findAll(numero, Optional.empty(), Optional.empty(), pageable))
+        .thenReturn(page);
 
     // Act
     var result = mockMvcTester.get()
@@ -107,7 +113,8 @@ class TarjetasRestControllerTest {
         });
 
     // Verify
-    verify(tarjetasService, times(1)).findAll(anyString(), isNull(), any(Pageable.class));
+    verify(tarjetasService, times(1))
+        .findAll(numero, Optional.empty(), Optional.empty(), pageable);
   }
 
   @Test
@@ -115,8 +122,11 @@ class TarjetasRestControllerTest {
     // Arrange
     var tarjetaResponses = List.of(tarjetaResponse2);
     String queryString = "?titular=" + tarjetaResponse2.getTitular();
+    Optional<String> titular = Optional.of(tarjetaResponse2.getTitular());
+    var pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
     var page = new PageImpl<>(tarjetaResponses);
-    when(tarjetasService.findAll(isNull(), anyString(), any(Pageable.class))).thenReturn(page);
+    when(tarjetasService.findAll(Optional.empty(), titular, Optional.empty(), pageable))
+        .thenReturn(page);
 
     // Act
     var result = mockMvcTester.get()
@@ -134,7 +144,8 @@ class TarjetasRestControllerTest {
         });
 
     // Verify
-    verify(tarjetasService, only()).findAll(isNull(), anyString(), any(Pageable.class));
+    verify(tarjetasService, only())
+        .findAll(Optional.empty(), titular, Optional.empty(), pageable);
   }
 
   @Test
@@ -143,8 +154,11 @@ class TarjetasRestControllerTest {
     var tarjetaResponses = List.of(tarjetaResponse2);
     String queryString = "?numero=" + tarjetaResponse2.getNumero() + "&"
         + "titular=" + tarjetaResponse2.getTitular();
+    Optional<String> numero = Optional.of(tarjetaResponse2.getNumero());
+    Optional<String> titular = Optional.of(tarjetaResponse2.getTitular());
+    var pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
     var page = new PageImpl<>(tarjetaResponses);
-    when(tarjetasService.findAll(anyString(), anyString(), any(Pageable.class))).thenReturn(page);
+    when(tarjetasService.findAll(numero, titular, Optional.empty(), pageable)).thenReturn(page);
 
     // Act
     var result = mockMvcTester.get()
@@ -162,7 +176,7 @@ class TarjetasRestControllerTest {
         });
 
     // Verify
-    verify(tarjetasService, only()).findAll(anyString(), anyString(), any(Pageable.class));
+    verify(tarjetasService, only()).findAll(numero, titular, Optional.empty(), pageable);
   }
 
 

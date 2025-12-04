@@ -78,57 +78,6 @@ class TarjetasRepositoryTest {
   }
 
 
-
-  @Test
-  void findAllByNumero() {
-    // Act
-    String numero = "4321-5678-1234-5678";
-    Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
-    Page<Tarjeta> page = repositorio.findByNumero(numero, pageable);
-
-    // Assert
-    assertAll("findAllByNumero",
-        () -> assertNotNull(page),
-        () -> assertFalse(page.isEmpty()),
-        () -> assertEquals(1, page.getTotalElements()),
-        () -> assertEquals(numero, page.getContent().getFirst().getNumero())
-    );
-  }
-
-
-  @Test
-  void findAllByTitular() {
-    // Act
-    String titular = "Jose";
-    Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
-    Page<Tarjeta> page = repositorio.findByTitularContainsIgnoreCase(titular.toLowerCase(), pageable);
-
-    // Assert
-    assertAll("findAllByTitular",
-        () -> assertNotNull(page),
-        () -> assertFalse(page.isEmpty()),
-        () -> assertEquals(1, page.getTotalElements()),
-        () -> assertEquals(titular, page.getContent().getFirst().getTitular().getNombre())
-    );
-  }
-
-  @Test
-  void findAllByNumeroAndTitular() {
-    // Act
-    String numero = "4321-5678-1234-5678";
-    String titular = "Juan";
-    Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
-    Page<Tarjeta> page = repositorio.findByNumeroAndTitularContainsIgnoreCase(numero, titular.toLowerCase(), pageable);
-    // Assert
-    assertAll(
-        () -> assertNotNull(page),
-        () -> assertFalse(page.isEmpty()),
-        () -> assertEquals(1, page.getTotalElements()),
-        () -> assertEquals(numero, page.getContent().getFirst().getNumero()),
-        () -> assertEquals(titular, page.getContent().getFirst().getTitular().getNombre())
-    );
-  }
-
   @Test
   void findById_existingId_returnsOptionalWithTarjeta() {
     // Act

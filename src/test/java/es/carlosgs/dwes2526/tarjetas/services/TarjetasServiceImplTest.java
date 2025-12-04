@@ -21,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -102,10 +103,11 @@ class TarjetasServiceImplTest {
     List<Tarjeta> expectedTarjetas = Arrays.asList(tarjeta1, tarjeta2);
     Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
     Page<Tarjeta> expectedPage = new PageImpl<>(expectedTarjetas);
-    when(tarjetasRepository.findAll(any(Pageable.class))).thenReturn(expectedPage);
+    when(tarjetasRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(expectedPage);
 
     // Act
-    Page<TarjetaResponseDto> actualPage = tarjetasService.findAll(null, null, pageable);
+    Page<TarjetaResponseDto> actualPage =
+        tarjetasService.findAll(Optional.empty(), Optional.empty(), Optional.empty(), pageable);
 
     // Assert
     assertAll("findAll",
@@ -116,20 +118,21 @@ class TarjetasServiceImplTest {
 
     // Verify
     // verifica que findAll() se ejecuta una vez
-    verify(tarjetasRepository, times(1)).findAll(any(Pageable.class));
+    verify(tarjetasRepository, times(1)).findAll(any(Specification.class), any(Pageable.class));
   }
 
   @Test
   void findAll_ShouldReturnTarjetasByNumero_WhenNumeroParameterProvided() {
     // Arrange
-    String numero = "1234-5678-1234-5678";
+    Optional<String> numero = Optional.of("1234-5678-1234-5678");
     List<Tarjeta> expectedTarjetas = List.of(tarjeta1);
     Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending()); // ejemplo de creación de un objeto Pageable
     Page<Tarjeta> expectedPage = new PageImpl<>(expectedTarjetas);
-    when(tarjetasRepository.findByNumero(numero, pageable)).thenReturn(expectedPage);
+    when(tarjetasRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(expectedPage);
 
     // Act
-    Page<TarjetaResponseDto> actualPage = tarjetasService.findAll(numero, null, pageable);
+    Page<TarjetaResponseDto> actualPage =
+        tarjetasService.findAll(numero, Optional.empty(), Optional.empty(), pageable);
 
     // Assert
     assertAll("findAll",
@@ -140,21 +143,21 @@ class TarjetasServiceImplTest {
 
     // Verify
     // Verifica que solo se ejecuta este método
-    verify(tarjetasRepository, only()).findByNumero(numero, pageable);
+    verify(tarjetasRepository, only()).findAll(any(Specification.class), any(Pageable.class));
   }
 
   @Test
   void findAll_ShouldReturnTarjetasByTitular_WhenTitularParameterProvided() {
     // Arrange
-    String titular = "Jose";
+    Optional<String> titular = Optional.of("Jose");
     List<Tarjeta> expectedTarjetas = List.of(tarjeta1);
     Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending()); // ejemplo de creación de un objeto Pageable
     Page<Tarjeta> expectedPage = new PageImpl<>(expectedTarjetas);
-    when(tarjetasRepository.findByTitularContainsIgnoreCase(titular.toLowerCase(), pageable))
-        .thenReturn(expectedPage);
+    when(tarjetasRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(expectedPage);
 
     // Act
-    Page<TarjetaResponseDto> actualPage = tarjetasService.findAll(null, titular, pageable);
+    Page<TarjetaResponseDto> actualPage =
+        tarjetasService.findAll(Optional.empty(), titular, Optional.empty(), pageable);
 
     // Assert
     assertAll("findAll",
@@ -164,22 +167,22 @@ class TarjetasServiceImplTest {
     );
 
     // Verify
-    verify(tarjetasRepository, only()).findByTitularContainsIgnoreCase(titular.toLowerCase(), pageable);
+    verify(tarjetasRepository, only()).findAll(any(Specification.class), any(Pageable.class));
   }
 
   @Test
   void findAll_ShouldReturnTarjetasByNumeroAndTitular_WhenBothParametersProvided() {
     // Arrange
-    String numero = "1234-5678-1234-5678";
-    String titular = "Jose";
+    Optional<String> numero = Optional.of("1234-5678-1234-5678");
+    Optional<String> titular = Optional.of("Jose");
     List<Tarjeta> expectedTarjetas = List.of(tarjeta1);
     Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending()); // ejemplo de creación de un objeto Pageable
     Page<Tarjeta> expectedPage = new PageImpl<>(expectedTarjetas);
-    when(tarjetasRepository.findByNumeroAndTitularContainsIgnoreCase(numero, titular.toLowerCase(), pageable))
-        .thenReturn(expectedPage);
+    when(tarjetasRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(expectedPage);
 
     // Act
-    Page<TarjetaResponseDto> actualPage = tarjetasService.findAll(numero, titular, pageable);
+    Page<TarjetaResponseDto> actualPage =
+        tarjetasService.findAll(numero, titular, Optional.empty(), pageable);
 
     // Assert
     assertAll("findAll",
@@ -188,7 +191,7 @@ class TarjetasServiceImplTest {
         () -> assertTrue(actualPage.getTotalElements() > 0)
     );
     // Verify
-    verify(tarjetasRepository, only()).findByNumeroAndTitularContainsIgnoreCase(numero, titular.toLowerCase(), pageable);
+    verify(tarjetasRepository, only()).findAll(any(Specification.class), any(Pageable.class));
   }
 
   @Test
