@@ -27,6 +27,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Controlador de productos del tipo RestController
@@ -55,20 +56,22 @@ public class TarjetasRestController {
    * @return Lista de tarjetas
    */
   @GetMapping()
-  public ResponseEntity<PageResponse<TarjetaResponseDto>> getAll(@RequestParam(required = false) String numero,
-                                                         @RequestParam(required = false) String titular,
-                                                         @RequestParam(defaultValue = "0") int page,
-                                                         @RequestParam(defaultValue = "10") int size,
-                                                         @RequestParam(defaultValue = "id") String sortBy,
-                                                         @RequestParam(defaultValue = "asc") String direction,
-                                                                 HttpServletRequest request) {
+  public ResponseEntity<PageResponse<TarjetaResponseDto>> getAll(
+      @RequestParam(required = false) Optional<String> numero,
+      @RequestParam(required = false) Optional<String> titular,
+      @RequestParam(required = false) Optional<Boolean> isDeleted,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(defaultValue = "id") String sortBy,
+      @RequestParam(defaultValue = "asc") String direction,
+      HttpServletRequest request) {
     log.info("Buscando tarjetas por numero={}, titular={}", numero, titular);
     // Creamos el objeto de ordenación
     Sort sort = direction.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
     // Creamos cómo va a ser la paginación
     Pageable pageable = PageRequest.of(page, size, sort);
     UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromHttpUrl(request.getRequestURL().toString());
-    Page<TarjetaResponseDto> pageResult = tarjetasService.findAll(numero, titular, pageable);
+    Page<TarjetaResponseDto> pageResult = tarjetasService.findAll(numero, titular, isDeleted, pageable);
     return ResponseEntity.ok()
             .header("link", paginationLinksUtils.createLinkHeader(pageResult, uriBuilder))
             .body(PageResponse.of(pageResult, sortBy, direction));

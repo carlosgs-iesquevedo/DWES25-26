@@ -6,8 +6,10 @@ import es.carlosgs.dwes2526.tarjetas.dto.TarjetaUpdateDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.Optional;
+
 public interface TarjetasService {
-  Page<TarjetaResponseDto> findAll(String numero, String titular, Pageable pageable);
+  Page<TarjetaResponseDto> findAll(Optional<String> numero, Optional<String> titular, Optional<Boolean> isDeleted, Pageable pageable);
 
   TarjetaResponseDto findById(Long id);
 
