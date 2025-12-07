@@ -46,7 +46,7 @@ import java.util.Optional;
 public class TarjetasRestController {
   // Servicio de tarjetas
   private final TarjetasService tarjetasService;
-    private final PaginationLinksUtils paginationLinksUtils;
+  private final PaginationLinksUtils paginationLinksUtils;
 
   /**
    * Obtiene todas las tarjetas
@@ -66,7 +66,7 @@ public class TarjetasRestController {
       @RequestParam(defaultValue = "id") String sortBy,
       @RequestParam(defaultValue = "asc") String direction,
       HttpServletRequest request) {
-    log.info("Buscando tarjetas por numero={}, titular={}", numero, titular);
+    log.info("Buscando tarjetas por numero={}, titular={}, isDeleted={}", numero, titular,  isDeleted);
     // Creamos el objeto de ordenación
     Sort sort = direction.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
     // Creamos cómo va a ser la paginación
