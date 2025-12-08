@@ -1,0 +1,42 @@
+### getAll
+GET http://localhost:3000/api/v1/users
+
+### gatById
+GET http://localhost:3000/api/v1/users/1
+
+### gatById (uno que no existe)
+GET http://localhost:3000/api/v1/users/300
+
+### Nuevo usuario (contraseña User1)
+POST http://localhost:3000/api/v1/users
+Content-Type: application/json
+
+{
+  "nombre": "Carlos",
+  "apellidos": "Carlos User",
+  "username": "carlos",
+  "password": "$2a$12$RUq2ScW1Kiizu5K4gKoK4OTz80.DWaruhdyfi2lZCB.KeuXTBh0S.",
+  "email": "carlos@prueba.net",
+  "roles": [
+    "USER"
+  ]
+}
+
+### Actualiza tarjeta
+PUT http://localhost:3000/api/v1/users/5
+Content-Type: application/json
+
+{
+  "nombre": "Carlos",
+  "apellidos": "Carlos User",
+  "username": "carlos",
+  "password": "$2a$12$RUq2ScW1Kiizu5K4gKoK4OTz80.DWaruhdyfi2lZCB.KeuXTBh0S.",
+  "email": "carlos@hotmail.com",
+  "roles": [
+    "USER"
+  ]
+}
+
+
+### Delete tarjeta
+DELETE http://localhost:3000/api/v1/users/5

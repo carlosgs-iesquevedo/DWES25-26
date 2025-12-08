@@ -2,6 +2,7 @@ package es.carlosgs.dwes2526.titulares.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import es.carlosgs.dwes2526.tarjetas.models.Tarjeta;
+import es.carlosgs.dwes2526.users.models.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -35,10 +36,12 @@ public class Titular {
   @Builder.Default
   private Boolean isDeleted = false;
 
-
   // relación bidireccional de uno a muchos con Tarjeta
   @OneToMany(mappedBy = "titular")
   @JsonIgnoreProperties("titular")
   private List<Tarjeta> tarjetas;
+
+  @OneToOne(mappedBy = "titular")
+  private User usuario;
 
 }
