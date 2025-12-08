@@ -2,15 +2,18 @@ package es.carlosgs.dwes2526.titulares.services;
 
 import es.carlosgs.dwes2526.titulares.dto.TitularRequestDto;
 import es.carlosgs.dwes2526.titulares.exceptions.TitularConflictException;
-import es.carlosgs.dwes2526.titulares.mappers.TitularesMapper;
 import es.carlosgs.dwes2526.titulares.models.Titular;
 import es.carlosgs.dwes2526.titulares.repositories.TitularesRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,10 +35,12 @@ class TitularesServiceImplTest {
   @Test
   public void testFindAll() {
     // Arrange
-    when(titularesRepository.findAll()).thenReturn(List.of(titular));
+    var pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
+    var page = new PageImpl<>(List.of(titular));
+    when(titularesRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
 
     // Act
-    var res = titularesService.findAll(null);
+    var res = titularesService.findAll(Optional.empty(), Optional.empty(), pageable);
 
     // Assert
     assertAll("findAll",
@@ -44,7 +49,7 @@ class TitularesServiceImplTest {
     );
 
     // Verify
-    verify(titularesRepository, times(1)).findAll();
+    verify(titularesRepository, times(1)).findAll(any(Specification.class), any(Pageable.class));
   }
 
   @Test
@@ -152,7 +157,7 @@ class TitularesServiceImplTest {
     when(titularesRepository.findById(anyLong())).thenReturn(Optional.of(titular));
     when(titularesRepository.findByNombreEqualsIgnoreCase(anyString())).thenReturn(Optional.of(titular));
 
-    // Act, el id no debe ser igual, no se puede actualizar, porqe ya existe
+    // Act, el id no debe ser igual, no se puede actualizar, porque ya existe
     var res = assertThrows(TitularConflictException.class,
         () -> titularesService.update(2L, titularDto));
 

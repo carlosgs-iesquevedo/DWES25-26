@@ -2,6 +2,7 @@ package es.carlosgs.dwes2526.titulares.repositories;
 
 import es.carlosgs.dwes2526.titulares.models.Titular;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -10,18 +11,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface TitularesRepository extends JpaRepository<Titular, Long> {
+public interface TitularesRepository extends JpaRepository<Titular, Long>, JpaSpecificationExecutor<Titular> {
   // Encontrar por nombre exacto
   Optional<Titular> findByNombreEqualsIgnoreCase(String nombre);
 
-  // Encontrar por nombre exacto y no borrado
-  Optional<Titular> findByNombreEqualsIgnoreCaseAndIsDeletedFalse(String nombre);
-
   // Titulares por nombre
   List<Titular> findByNombreContainingIgnoreCase(String nombre);
-
-  // Tirulares activos
-  List<Titular> findByNombreContainingIgnoreCaseAndIsDeletedFalse(String nombre);
 
   // Si están borrados
   List<Titular> findByIsDeleted(Boolean isDeleted);
