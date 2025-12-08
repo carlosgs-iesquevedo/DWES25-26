@@ -9,12 +9,16 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -37,7 +41,9 @@ class TitularesRestControllerTest {
     void getAll() {
         // Arrange
         var titulares = List.of(titular1, titular2);
-        when(titularesService.findAll(null)).thenReturn(titulares);
+        var pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
+        var page = new PageImpl<>(titulares);
+        when(titularesService.findAll(Optional.empty(), Optional.empty(), pageable)).thenReturn(page);
 
         // Act. Consultar el endpoint
         var result = mockMvcTester.get()
@@ -49,15 +55,16 @@ class TitularesRestControllerTest {
         assertThat(result)
                 .hasStatusOk()
                 .bodyJson().satisfies(json -> {
-                    assertThat(json).extractingPath("$.length()").isEqualTo(titulares.size());
-                    assertThat(json).extractingPath("$[0]")
+                    assertThat(json).extractingPath("$.content.length()").isEqualTo(titulares.size());
+                    assertThat(json).extractingPath("$.content[0]")
                             .convertTo(Titular.class).usingRecursiveComparison().isEqualTo(titular1);
-                    assertThat(json).extractingPath("$[1]")
+                    assertThat(json).extractingPath("$.content[1]")
                             .convertTo(Titular.class).usingRecursiveComparison().isEqualTo(titular2);
                 });
 
         // Verify
-        verify(titularesService, times(1)).findAll(null);
+        verify(titularesService, times(1))
+            .findAll(Optional.empty(), Optional.empty(), pageable);
     }
 
     @Test
@@ -65,7 +72,11 @@ class TitularesRestControllerTest {
         // Arrange
         var titulares = List.of(titular2);
         String queryString = "?nombre=" + titular2.getNombre();
-        when(titularesService.findAll(anyString())).thenReturn(titulares);
+        Optional<String> nombre = Optional.of(titular2.getNombre());
+        var pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
+        var page = new PageImpl<>(titulares);
+        when(titularesService.findAll(nombre, Optional.empty(), pageable))
+            .thenReturn(page);
 
         // Act
         var result = mockMvcTester.get()
@@ -77,13 +88,14 @@ class TitularesRestControllerTest {
         assertThat(result)
                 .hasStatusOk()
                 .bodyJson().satisfies(json -> {
-                    assertThat(json).extractingPath("$.length()").isEqualTo(titulares.size());
-                    assertThat(json).extractingPath("$[0]")
+                    assertThat(json).extractingPath("$.content.length()").isEqualTo(titulares.size());
+                    assertThat(json).extractingPath("$.content[0]")
                             .convertTo(Titular.class).usingRecursiveComparison().isEqualTo(titular2);
                 });
 
         // Verify
-        verify(titularesService, times(1)).findAll(anyString());
+        verify(titularesService, times(1))
+            .findAll(nombre, Optional.empty(), pageable);
     }
 
     @Test
@@ -233,7 +245,7 @@ class TitularesRestControllerTest {
     @Test
     void update() {
       // Arrange
-      Long id = 1L;
+      long id = 1L;
       String requestBody = """
            {
               "nombre": "JOSE"
@@ -297,7 +309,7 @@ class TitularesRestControllerTest {
     @Test
     void update_shouldThrowBadRequest() {
       // Arrange
-      Long id = 3L;
+      long id = 3L;
       String requestBody = """
            {
               "nombre": null
@@ -325,7 +337,7 @@ class TitularesRestControllerTest {
     @Test
     void update_whenNombreExists() {
       // Arrange
-      Long id = 1L;
+      long id = 1L;
       String requestBody = """
            {
               "nombre": "Jose"
@@ -357,7 +369,7 @@ class TitularesRestControllerTest {
     @Test
     void delete() {
       // Arrange
-      Long id = 1L;
+      long id = 1L;
       doNothing().when(titularesService).deleteById(anyLong());
       // Act
       var result = mockMvcTester.delete()
