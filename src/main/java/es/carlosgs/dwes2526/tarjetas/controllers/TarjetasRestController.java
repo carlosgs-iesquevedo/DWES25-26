@@ -33,11 +33,10 @@ import java.util.Optional;
  * Controlador de productos del tipo RestController
  * Fijamos la ruta de acceso a este controlador
  * Usamos el repositorio de productos y lo inyectamos en el constructor con Autowired
- *
- * @RequiredArgsConstructor es una anotación Lombok que nos permite inyectar dependencias basadas
+ * RequiredArgsConstructor es una anotación Lombok que nos permite inyectar dependencias basadas
  * en las anotaciones @Controller, @Service, @Component, etc.
  * y que se encuentren en nuestro contenedor de Spring
- * con solo declarar las dependencias como final ya que el constructor lo genera Lombok
+ * con solo declarar las dependencias como final, ya que el constructor lo genera Lombok
  */
 @Slf4j
 @RequiredArgsConstructor

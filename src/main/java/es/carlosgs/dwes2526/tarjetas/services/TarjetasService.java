@@ -15,6 +15,8 @@ public interface TarjetasService {
 
   TarjetaResponseDto findByUuid(String uuid);
 
+  Page<TarjetaResponseDto> findByUsuarioId(Long id, Pageable pageable);
+
   TarjetaResponseDto save(TarjetaCreateDto tarjetaCreateDto);
 
   TarjetaResponseDto update(Long id, TarjetaUpdateDto tarjetaUpdateDto);

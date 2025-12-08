@@ -107,7 +107,13 @@ public class TarjetasServiceImpl implements TarjetasService, InitializingBean {
     } catch (IllegalArgumentException e) {
       throw new TarjetaBadUuidException(uuid);
     }
+  }
 
+  @Override
+  public Page<TarjetaResponseDto> findByUsuarioId(Long idUsuario, Pageable pageable) {
+    log.info("Obteniendo tarjetas del usuario con id: " + idUsuario);
+    return tarjetasRepository.findByUsuarioId(idUsuario, pageable)
+        .map(tarjetaMapper::toTarjetaResponseDto);
   }
 
   // Cachea con el id del resultado de la operación como key

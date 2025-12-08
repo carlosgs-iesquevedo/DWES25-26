@@ -17,3 +17,11 @@ Content-Type: application/json
 GET http://localhost:3000/api/v1/users
 Authorization: Bearer {{auth_token}}
 
+### Debería funcionar con user
+GET http://localhost:3000/api/v1/users/me/tarjetas
+Authorization: Bearer {{auth_token}}
+
+### Debería fallar con user porque no tiene perfil adecuado
+DELETE http://localhost:3000/api/v1/me/profile
+Authorization: Bearer {{auth_token}}
+

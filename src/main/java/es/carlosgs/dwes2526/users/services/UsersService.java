@@ -1,5 +1,6 @@
 package es.carlosgs.dwes2526.users.services;
 
+import es.carlosgs.dwes2526.users.dto.UserInfoResponse;
 import es.carlosgs.dwes2526.users.dto.UserRequest;
 import es.carlosgs.dwes2526.users.dto.UserResponse;
 import es.carlosgs.dwes2526.users.models.User;
@@ -13,7 +14,7 @@ public interface UsersService {
 
   Page<UserResponse> findAll(Optional<String> username, Optional<String> email, Optional<Boolean> isDeleted, Pageable pageable);
 
-  UserResponse findById(Long id);
+  UserInfoResponse findById(Long id);
 
   UserResponse save(UserRequest userRequest);
 

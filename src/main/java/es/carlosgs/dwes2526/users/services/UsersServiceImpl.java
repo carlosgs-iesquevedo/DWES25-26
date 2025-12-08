@@ -1,6 +1,7 @@
 package es.carlosgs.dwes2526.users.services;
 
 import es.carlosgs.dwes2526.tarjetas.repositories.TarjetasRepository;
+import es.carlosgs.dwes2526.users.dto.UserInfoResponse;
 import es.carlosgs.dwes2526.users.dto.UserRequest;
 import es.carlosgs.dwes2526.users.dto.UserResponse;
 import es.carlosgs.dwes2526.users.exceptions.UserNameOrEmailExists;
@@ -35,7 +36,7 @@ public class UsersServiceImpl implements UsersService {
 
   @Override
   public Page<UserResponse> findAll(Optional<String> username, Optional<String> email, Optional<Boolean> isDeleted, Pageable pageable) {
-    log.info("Buscando todos los usuarios con username: " + username + " y borrados: " + isDeleted);
+    log.info("Buscando todos los usuarios con username: {} y borrados: {}", username, isDeleted);
     // Criterio de búsqueda por nombre
     Specification<User> specUsernameUser = (root, query, criteriaBuilder) ->
         username.map(m -> criteriaBuilder.like(criteriaBuilder.lower(root.get("username")), "%" + m.toLowerCase() + "%"))
@@ -64,17 +65,19 @@ public class UsersServiceImpl implements UsersService {
 
   @Override
   @Cacheable(key = "#id")
-  public UserResponse findById(Long id) {
-    log.info("Buscando usuario por id: " + id);
+  public UserInfoResponse findById(Long id) {
+    log.info("Buscando usuario por id: {}", id);
     // Buscamos el usuario
     var user = usersRepository.findById(id).orElseThrow(() -> new UserNotFound(id));
-    return usersMapper.toUserResponse(user);
+    // Buscamos sus tarjetas
+    var tarjetas = tarjetasRepository.findByUsuarioId(id).stream().map(p -> p.getNumero()).toList();
+    return usersMapper.toUserInfoResponse(user,  tarjetas);
   }
 
   @Override
   @CachePut(key = "#result.id")
   public UserResponse save(UserRequest userRequest) {
-    log.info("Guardando usuario: " + userRequest);
+    log.info("Guardando usuario: {}", userRequest);
     // No debe existir otro con el mismo username o email
     usersRepository.findByUsernameEqualsIgnoreCaseOrEmailEqualsIgnoreCase(userRequest.getUsername(), userRequest.getEmail())
         .ifPresent(u -> {
@@ -86,9 +89,9 @@ public class UsersServiceImpl implements UsersService {
   @Override
   @CachePut(key = "#result.id")
   public UserResponse update(Long id, UserRequest userRequest) {
-    log.info("Actualizando usuario: " + userRequest);
+    log.info("Actualizando usuario: {}", userRequest);
     usersRepository.findById(id).orElseThrow(() -> new UserNotFound(id));
-    // No debe existir otro con el mismo username o email
+    // No debe existir otro con el mismo username o email, y si existe soy yo mismo
     usersRepository.findByUsernameEqualsIgnoreCaseOrEmailEqualsIgnoreCase(userRequest.getUsername(), userRequest.getEmail())
         .ifPresent(u -> {
           if (!u.getId().equals(id)) {
@@ -103,16 +106,16 @@ public class UsersServiceImpl implements UsersService {
   @Transactional
   @CacheEvict(key = "#id")
   public void deleteById(Long id) {
-    log.info("Borrando usuario por id: " + id);
+    log.info("Borrando usuario por id: {}", id);
     User user = usersRepository.findById(id).orElseThrow(() -> new UserNotFound(id));
-    //Hacemos el borrado fisico si no hay tarjetas
+    //Hacemos el borrado físico si no hay tarjetas
     if (tarjetasRepository.existsByUsuarioId(id)) {
       // Si hay tarjetas, lo marcamos como borrado lógico
-      log.info("Borrado lógico de usuario por id: " + id);
+      log.info("Borrado lógico de usuario por id: {}", id);
       usersRepository.updateIsDeletedToTrueById(id);
     } else {
       // Si no hay tarjetas, lo borramos físicamente
-      log.info("Borrado físico de usuario por id: " + id);
+      log.info("Borrado físico de usuario por id: {}", id);
       usersRepository.delete(user);
     }
   }

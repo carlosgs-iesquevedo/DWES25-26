@@ -1,6 +1,8 @@
 package es.carlosgs.dwes2526.tarjetas.repositories;
 
 import es.carlosgs.dwes2526.tarjetas.models.Tarjeta;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -30,4 +32,15 @@ public interface TarjetasRepository extends JpaRepository<Tarjeta, Long>, JpaSpe
   @Query("UPDATE Tarjeta t SET t.isDeleted = true WHERE t.id = :id")
   // Consulta de actualización
   void updateIsDeletedToTrueById(Long id);
+
+  @Query("SELECT t FROM Tarjeta t WHERE t.titular.usuario.id = :usuarioId")
+  Page<Tarjeta> findByUsuarioId(Long usuarioId, Pageable pageable);
+
+  @Query("SELECT t FROM Tarjeta t WHERE t.titular.usuario.id = :usuarioId")
+  List<Tarjeta> findByUsuarioId(Long usuarioId);
+
+  // Obtiene si existe una tarjeta con el id del usuario
+  @Query("SELECT CASE WHEN COUNT(t) > 0 THEN true ELSE false END FROM Tarjeta t WHERE t.titular.usuario.id = :id")
+  Boolean existsByUsuarioId(Long id);
+
 }

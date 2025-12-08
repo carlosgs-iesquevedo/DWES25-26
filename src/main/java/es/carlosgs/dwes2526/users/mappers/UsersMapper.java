@@ -1,9 +1,12 @@
 package es.carlosgs.dwes2526.users.mappers;
 
+import es.carlosgs.dwes2526.users.dto.UserInfoResponse;
 import es.carlosgs.dwes2526.users.dto.UserRequest;
 import es.carlosgs.dwes2526.users.dto.UserResponse;
 import es.carlosgs.dwes2526.users.models.User;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class UsersMapper {
@@ -41,6 +44,19 @@ public class UsersMapper {
         .email(user.getEmail())
         .roles(user.getRoles())
         .isDeleted(user.getIsDeleted())
+        .build();
+  }
+
+  public UserInfoResponse toUserInfoResponse(User user, List<String> tarjetas) {
+    return UserInfoResponse.builder()
+        .id(user.getId())
+        .nombre(user.getNombre())
+        .apellidos(user.getApellidos())
+        .username(user.getUsername())
+        .email(user.getEmail())
+        .roles(user.getRoles())
+        .isDeleted(user.getIsDeleted())
+        .tarjetas(tarjetas)
         .build();
   }
 
