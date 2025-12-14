@@ -1,10 +1,12 @@
 ### getAll
 GET http://localhost:3000/api/v1/users
+Authorization: Bearer {{auth_token}}
 
-### gatById
+### getById
 GET http://localhost:3000/api/v1/users/1
+Authorization: Bearer {{auth_token}}
 
-### gatById (uno que no existe)
+### getById (uno que no existe)
 GET http://localhost:3000/api/v1/users/300
 
 ### Nuevo usuario (contraseña User1)
@@ -37,6 +39,53 @@ Content-Type: application/json
   ]
 }
 
-
 ### Delete tarjeta
 DELETE http://localhost:3000/api/v1/users/5
+
+###
+### Perfil del usuario autenticado
+###
+
+### Debería funcionar con rol USER
+GET http://localhost:3000/api/v1/users/me/profile
+Authorization: Bearer {{auth_token}}
+
+###
+### Tarjetas del usuario autenticado
+
+### Debería funcionar con rol USER
+GET http://localhost:3000/api/v1/users/me/tarjetas
+Authorization: Bearer {{auth_token}}
+
+### Debería funcionar con rol USER
+GET http://localhost:3000/api/v1/users/me/tarjetas/1
+Authorization: Bearer {{auth_token}}
+
+### Debería funcionar con rol USER
+POST http://localhost:3000/api/v1/users/me/tarjetas
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+
+{
+  "numero": "2222-5678-1234-5678",
+  "cvc": "123",
+  "fechaCaducidad": "2029-12-31",
+  "titular": "María",
+  "saldo": 300.0
+}
+
+### Debería funcionar con rol USER
+PUT http://localhost:3000/api/v1/users/me/tarjetas/1
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+
+{
+  "numero": "2222-5678-1234-5678",
+  "cvc": "123",
+  "fechaCaducidad": "2029-12-31",
+  "saldo": 300.0
+}
+
+### Debería funcionar con rol USER
+DELETE http://localhost:3000/api/v1/users/me/tarjetas/1
+Authorization: Bearer {{auth_token}}

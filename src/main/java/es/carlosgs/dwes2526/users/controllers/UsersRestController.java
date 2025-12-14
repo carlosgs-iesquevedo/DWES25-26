@@ -153,10 +153,10 @@ public class UsersRestController {
    * @return Datos del usuario
    */
   @GetMapping("/me/profile")
-  @PreAuthorize("hasRole('ADMIN')") // Solo los admin pueden acceder
+  @PreAuthorize("hasRole('USER')") // Solo los user pueden acceder
   public ResponseEntity<UserInfoResponse> me(@AuthenticationPrincipal User user) {
     log.info("Obteniendo usuario");
-    // Esta autenticado, por lo que devolvemos sus datos ya sabemos su id
+    // Está autenticado, por lo que devolvemos sus datos ya sabemos su id
     return ResponseEntity.ok(usersService.findById(user.getId()));
   }
 
@@ -170,7 +170,8 @@ public class UsersRestController {
    */
   @PutMapping("/me/profile")
   @PreAuthorize("hasRole('USER')") // Solo los usuarios pueden acceder
-  public ResponseEntity<UserResponse> updateMe(@AuthenticationPrincipal User user, @Valid @RequestBody UserRequest userRequest) {
+  public ResponseEntity<UserResponse> updateMe(@AuthenticationPrincipal User user,
+                                               @Valid @RequestBody UserRequest userRequest) {
     log.info("updateMe: user: {}, userRequest: {}", user, userRequest);
     return ResponseEntity.ok(usersService.update(user.getId(), userRequest));
   }
@@ -209,9 +210,11 @@ public class UsersRestController {
       @RequestParam(defaultValue = "asc") String direction
   ) {
     log.info("Obteniendo tarjetas del usuario con id: {}", user.getId());
-    Sort sort = direction.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+    Sort sort = direction.equalsIgnoreCase(
+        Sort.Direction.ASC.name()) ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
     Pageable pageable = PageRequest.of(page, size, sort);
-    return ResponseEntity.ok(PageResponse.of(tarjetasService.findByUsuarioId(user.getId(), pageable), sortBy, direction));
+    return ResponseEntity.ok(PageResponse.of(
+        tarjetasService.findByUsuarioId(user.getId(), pageable), sortBy, direction));
   }
 
   /**
@@ -229,7 +232,8 @@ public class UsersRestController {
       @PathVariable("id") Long idTarjeta
   ) {
     log.info("Obteniendo tarjeta con id: {}", idTarjeta);
-    return ResponseEntity.ok(tarjetasService.findById(idTarjeta));
+    // Solo puedo verla si es una tarjeta mía
+    return ResponseEntity.ok(tarjetasService.findByUsuarioId(user.getId(), idTarjeta));
   }
 
   /**
@@ -247,7 +251,7 @@ public class UsersRestController {
       @Valid @RequestBody TarjetaCreateDto tarjeta
   ) {
     log.info("Creando tarjeta: {}", tarjeta);
-    return ResponseEntity.status(HttpStatus.CREATED).body(tarjetasService.save(tarjeta));
+    return ResponseEntity.status(HttpStatus.CREATED).body(tarjetasService.save(tarjeta, user.getId()));
   }
 
   /**
@@ -267,7 +271,7 @@ public class UsersRestController {
       @PathVariable("id") Long idTarjeta,
       @Valid @RequestBody TarjetaUpdateDto tarjeta) {
     log.info("Actualizando tarjeta con id: {}", idTarjeta);
-    return ResponseEntity.ok(tarjetasService.update(idTarjeta, tarjeta));
+    return ResponseEntity.ok(tarjetasService.update(idTarjeta, tarjeta,  user.getId()));
   }
 
   /**
@@ -286,7 +290,7 @@ public class UsersRestController {
       @PathVariable("id") Long idTarjeta
   ) {
     log.info("Borrando tarjeta con id: {}", idTarjeta);
-    tarjetasService.deleteById(idTarjeta);
+    tarjetasService.deleteById(idTarjeta,  user.getId());
     return ResponseEntity.noContent().build();
   }
 

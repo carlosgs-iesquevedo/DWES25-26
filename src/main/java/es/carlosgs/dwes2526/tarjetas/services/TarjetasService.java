@@ -15,12 +15,16 @@ public interface TarjetasService {
 
   TarjetaResponseDto findByUuid(String uuid);
 
-  Page<TarjetaResponseDto> findByUsuarioId(Long id, Pageable pageable);
+  Page<TarjetaResponseDto> findByUsuarioId(Long usuarioId, Pageable pageable);
+  TarjetaResponseDto findByUsuarioId(Long usuarioId, Long idTarjeta);
 
   TarjetaResponseDto save(TarjetaCreateDto tarjetaCreateDto);
+  TarjetaResponseDto save(TarjetaCreateDto tarjetaCreateDto, Long usuarioId);
 
   TarjetaResponseDto update(Long id, TarjetaUpdateDto tarjetaUpdateDto);
+  TarjetaResponseDto update(Long id, TarjetaUpdateDto tarjetaUpdateDto,  Long usuarioId);
 
   void deleteById(Long id);
+  void deleteById(Long id, Long usuarioId);
 
 }

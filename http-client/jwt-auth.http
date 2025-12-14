@@ -5,19 +5,19 @@ POST http://localhost:3000/api/v1/auth/signin
 Content-Type: application/json
 
 {
-  "username": "carlos",
-  "password": "User1"
+  "username": "admin",
+  "password": "Admin1"
 }
 
 > {% client.global.set("auth_token", response.body.token); %}
 
 ### Authorization by token, part 2. Use token to authorize.
 
-### Debería funcionar con rol USER
+### Debería funcionar con rol ADMIN
 GET http://localhost:3000/api/v1/users
 Authorization: Bearer {{auth_token}}
 
-### Debería funcionar con user
+### Debería funcionar con rol USER
 GET http://localhost:3000/api/v1/users/me/tarjetas
 Authorization: Bearer {{auth_token}}
 

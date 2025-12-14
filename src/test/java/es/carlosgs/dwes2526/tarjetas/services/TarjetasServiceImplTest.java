@@ -12,7 +12,7 @@ import es.carlosgs.dwes2526.tarjetas.mappers.TarjetaMapper;
 import es.carlosgs.dwes2526.tarjetas.models.Tarjeta;
 import es.carlosgs.dwes2526.tarjetas.repositories.TarjetasRepository;
 import es.carlosgs.dwes2526.titulares.models.Titular;
-import es.carlosgs.dwes2526.titulares.services.TitularesService;
+import es.carlosgs.dwes2526.titulares.repositories.TitularesRepository;
 import es.carlosgs.dwes2526.websockets.notifications.mappers.TarjetaNotificationMapper;
 import es.carlosgs.dwes2526.websockets.notifications.models.Notificacion;
 import org.junit.jupiter.api.BeforeEach;
@@ -66,9 +66,9 @@ class TarjetasServiceImplTest {
   // usamos el repositorio totalmente simulado
   @Mock
   private TarjetasRepository tarjetasRepository;
-  // usamos el servicio de titulares simulado
+  // usamos el repositorio de titulares simulado
   @Mock
-  private TitularesService titularesService;
+  private TitularesRepository titularesRepository;
   // usamos el mapper real aunque en modo espía que nos permite simular algunas partes del mismo
   @Spy
   private TarjetaMapper tarjetaMapper;
@@ -280,7 +280,8 @@ class TarjetasServiceImplTest {
         .uuid(UUID.randomUUID())
         .build();
     TarjetaResponseDto expectedTarjetaResponse = tarjetaMapper.toTarjetaResponseDto(expectedTarjeta);
-    when(titularesService.findByNombre(tarjetaCreateDto.getTitular())).thenReturn(titular);
+    when(titularesRepository.findByNombreEqualsIgnoreCase(tarjetaCreateDto.getTitular()))
+        .thenReturn(Optional.of(titular));
     when(tarjetasRepository.save(any(Tarjeta.class))).thenReturn(expectedTarjeta);
     doNothing().when(webSocketService).sendMessage(any());
 

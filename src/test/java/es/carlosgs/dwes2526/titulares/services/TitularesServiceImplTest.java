@@ -2,12 +2,14 @@ package es.carlosgs.dwes2526.titulares.services;
 
 import es.carlosgs.dwes2526.titulares.dto.TitularRequestDto;
 import es.carlosgs.dwes2526.titulares.exceptions.TitularConflictException;
+import es.carlosgs.dwes2526.titulares.mappers.TitularesMapper;
 import es.carlosgs.dwes2526.titulares.models.Titular;
 import es.carlosgs.dwes2526.titulares.repositories.TitularesRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -28,6 +30,8 @@ class TitularesServiceImplTest {
 
   @Mock
   private TitularesRepository titularesRepository;
+  @Spy
+  private TitularesMapper titularesMapper;
   // Es la clase que se testea y a la que se inyectan los mocks y espías automáticamente
   @InjectMocks
   private TitularesServiceImpl titularesService;
