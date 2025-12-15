@@ -12,6 +12,7 @@ GET http://localhost:3000/api/v1/users/300
 ### Nuevo usuario (contraseña User1)
 POST http://localhost:3000/api/v1/users
 Content-Type: application/json
+Authorization: Bearer {{auth_token}}
 
 {
   "nombre": "Carlos",
@@ -26,6 +27,7 @@ Content-Type: application/json
 
 ### Actualiza tarjeta
 PUT http://localhost:3000/api/v1/users/5
+Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 
 {
@@ -41,6 +43,7 @@ Content-Type: application/json
 
 ### Delete tarjeta
 DELETE http://localhost:3000/api/v1/users/5
+Authorization: Bearer {{auth_token}}
 
 ###
 ### Perfil del usuario autenticado
