@@ -41,9 +41,10 @@ public class SecurityConfig {
   @Value("${api.version}")
   private String apiVersion;
 
+  // Este filtro permite el acceso a la API REST
   @Bean
   @Order(1)
-  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+  public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
     String[] apiPaths = { "/api/**", "/error/**", "/ws/**" };
     http
         .securityMatcher(apiPaths)
@@ -87,9 +88,21 @@ public class SecurityConfig {
     return http.build();
   }
 
-  // Este filtro permite el acceso a la consola de H2. Quitar en producción
+  // Este filtro permite el acceso a la documentación OpenAPI
   @Bean
   @Order(2)
+  public SecurityFilterChain openapiFilterChain(HttpSecurity http) throws Exception {
+    http
+        .securityMatcher("/swagger-ui/**")
+        .securityMatcher("/v3/api-docs/**")
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll());
+    return http.build();
+  }
+
+  // Este filtro permite el acceso a la consola de H2. Quitar en producción
+  @Bean
+  @Order(3)
   public SecurityFilterChain h2ConsoleFilterChain(HttpSecurity http) throws Exception {
     http
         .securityMatcher(PathRequest.toH2Console())
