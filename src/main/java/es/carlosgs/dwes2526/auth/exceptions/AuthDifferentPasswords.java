@@ -1,11 +1,11 @@
-package es.carlosgs.dwes2526.tarjetas.exceptions;
+package es.carlosgs.dwes2526.auth.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.BAD_REQUEST)
-public class TarjetaBadRequestException extends TarjetaException {
-  public TarjetaBadRequestException(String message) {
+public class AuthDifferentPasswords extends RuntimeException {
+  public AuthDifferentPasswords(String message) {
     super(message);
   }
 }

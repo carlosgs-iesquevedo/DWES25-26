@@ -7,13 +7,14 @@ import es.carlosgs.dwes2526.config.websockets.WebSocketHandler;
 import es.carlosgs.dwes2526.tarjetas.dto.TarjetaCreateDto;
 import es.carlosgs.dwes2526.tarjetas.dto.TarjetaResponseDto;
 import es.carlosgs.dwes2526.tarjetas.dto.TarjetaUpdateDto;
+import es.carlosgs.dwes2526.tarjetas.exceptions.TarjetaBadRequestException;
 import es.carlosgs.dwes2526.tarjetas.exceptions.TarjetaBadUuidException;
 import es.carlosgs.dwes2526.tarjetas.exceptions.TarjetaNotFoundException;
 import es.carlosgs.dwes2526.tarjetas.mappers.TarjetaMapper;
 import es.carlosgs.dwes2526.tarjetas.models.Tarjeta;
 import es.carlosgs.dwes2526.tarjetas.repositories.TarjetasRepository;
 import es.carlosgs.dwes2526.titulares.models.Titular;
-import es.carlosgs.dwes2526.titulares.services.TitularesService;
+import es.carlosgs.dwes2526.titulares.repositories.TitularesRepository;
 import es.carlosgs.dwes2526.websockets.notifications.dto.TarjetaNotificationResponse;
 import es.carlosgs.dwes2526.websockets.notifications.mappers.TarjetaNotificationMapper;
 import es.carlosgs.dwes2526.websockets.notifications.models.Notificacion;
@@ -41,7 +42,7 @@ import java.util.UUID;
 public class TarjetasServiceImpl implements TarjetasService, InitializingBean {
   private final TarjetasRepository tarjetasRepository;
   private final TarjetaMapper tarjetaMapper;
-  private final TitularesService titularesService;
+  private final TitularesRepository titularesRepository;
 
   private final WebSocketConfig webSocketConfig;
   private final ObjectMapper objectMapper;
@@ -107,16 +108,50 @@ public class TarjetasServiceImpl implements TarjetasService, InitializingBean {
     } catch (IllegalArgumentException e) {
       throw new TarjetaBadUuidException(uuid);
     }
-
   }
 
+  @Override
+  public Page<TarjetaResponseDto> findByUsuarioId(Long usuarioId, Pageable pageable) {
+    log.info("Obteniendo tarjetas del usuario con id: {}", usuarioId);
+    return tarjetasRepository.findByUsuarioId(usuarioId, pageable)
+        .map(tarjetaMapper::toTarjetaResponseDto);
+  }
+
+  @Override
+  public TarjetaResponseDto findByUsuarioId(Long usuarioId, Long idTarjeta) {
+    log.info("Obteniendo tarjetas del usuario con id: {}", usuarioId);
+    var tarjetas = tarjetasRepository.findByUsuarioId(usuarioId);
+    var tarjetaEncontrada = tarjetas.stream().filter(t ->  t.getId().equals(idTarjeta))
+        .findFirst().orElse(null);
+    if (tarjetaEncontrada == null) {
+      throw new TarjetaBadRequestException("La tarjeta " + idTarjeta + " no corresponde a este usuario");
+      // O not found también valdría
+      //throw new TarjetaNotFoundException(idTarjeta);
+    }
+    return tarjetaMapper.toTarjetaResponseDto(tarjetaEncontrada);
+  }
+
+
+  /**
+   * Comprueba si existe el titular
+   *
+   * @param nombreTitular Nombre del titular
+   */
+  private Titular checkTitular(String nombreTitular) {
+    log.info("Buscando titular por nombre: {}", nombreTitular);
+    // Buscamos el titular por su nombre, debe existir y no estar borrado
+    var titular = titularesRepository.findByNombreEqualsIgnoreCase(nombreTitular);
+    if (titular.isEmpty() || titular.get().getIsDeleted()) {
+      throw new TarjetaBadRequestException("El titular " + nombreTitular + " no existe o está borrado");
+    }
+    return titular.get();
+  }
   // Cachea con el id del resultado de la operación como key
   @CachePut(key = "#result.id")
   @Override
   public TarjetaResponseDto save(TarjetaCreateDto tarjetaCreateDto) {
     log.info("Guardando tarjeta: {}", tarjetaCreateDto);
-    // Buscamos el titular por su nombre
-    var titular = titularesService.findByNombre(tarjetaCreateDto.getTitular());
+    Titular titular = checkTitular(tarjetaCreateDto.getTitular());
     // Creamos la tarjeta nueva con los datos que nos vienen y la guardamos en el repositorio
     Tarjeta tarjetaSaved = tarjetasRepository.save(
         tarjetaMapper.toTarjeta(tarjetaCreateDto, titular));
@@ -126,12 +161,54 @@ public class TarjetasServiceImpl implements TarjetasService, InitializingBean {
     return tarjetaMapper.toTarjetaResponseDto(tarjetaSaved);
   }
 
+  @Override
+  public TarjetaResponseDto save(TarjetaCreateDto tarjetaCreateDto, Long usuarioId) {
+    log.info("Guardando tarjeta: {} de usuarioId: {}", tarjetaCreateDto, usuarioId);
+    Titular titular = checkTitular(tarjetaCreateDto.getTitular());
+    var usuario = titular.getUsuario();
+    if ((usuario != null) && (!usuario.getId().equals(usuarioId))) {
+      throw new TarjetaBadRequestException("El usuario no se corresponde con el titular");
+    }
+    // Creamos la tarjeta nueva con los datos que nos vienen y la guardamos en el repositorio
+    Tarjeta tarjetaSaved = tarjetasRepository.save(
+        tarjetaMapper.toTarjeta(tarjetaCreateDto, titular));
+    // Enviamos la notificación a los clientes ws
+    onChange(Notificacion.Tipo.CREATE, tarjetaSaved);
+    // La guardamos en el repositorio
+    return tarjetaMapper.toTarjetaResponseDto(tarjetaSaved);
+  }
+
+
+
   @CachePut(key = "#result.id")
   @Override
   public TarjetaResponseDto update(Long id, TarjetaUpdateDto tarjetaUpdateDto) {
     log.info("Actualizando tarjeta por id: {}", id);
     // Si no existe lanza excepción
     var tarjetaActual = tarjetasRepository.findById(id).orElseThrow(()-> new TarjetaNotFoundException(id));
+    // Como no podemos actualizar el titular, no comprobamos si existe
+    // Actualizamos la tarjeta con los datos que nos vienen y la guardamos en el repositorio
+    Tarjeta tarjetaUpdated =  tarjetasRepository.save(
+        tarjetaMapper.toTarjeta(tarjetaUpdateDto, tarjetaActual));
+    // Enviamos la notificación a los clientes ws
+    onChange(Notificacion.Tipo.UPDATE, tarjetaUpdated);
+    // La guardamos en el repositorio
+    return tarjetaMapper.toTarjetaResponseDto(tarjetaUpdated);
+  }
+
+  @CachePut(key = "#result.id")
+  @Override
+  public TarjetaResponseDto update(Long id, TarjetaUpdateDto tarjetaUpdateDto, Long usuarioId) {
+    log.info("Actualizando tarjeta por id: {}", id);
+    // Si no existe lanza excepción
+    var tarjetaActual = tarjetasRepository.findById(id).orElseThrow(()-> new TarjetaNotFoundException(id));
+    // Como no podemos actualizar el titular, no comprobamos si existe
+    // pero sí comprobamos que pertenece al usuarioId
+    var usuario = tarjetaActual.getTitular().getUsuario();
+    if ((usuario != null) && (!usuario.getId().equals(usuarioId))) {
+      throw new TarjetaBadRequestException("La tarjeta " +
+          tarjetaUpdateDto.getNumero() + " no corresponde a este usuario");
+    }
     // Actualizamos la tarjeta con los datos que nos vienen y la guardamos en el repositorio
     Tarjeta tarjetaUpdated =  tarjetasRepository.save(
         tarjetaMapper.toTarjeta(tarjetaUpdateDto, tarjetaActual));
@@ -149,6 +226,25 @@ public class TarjetasServiceImpl implements TarjetasService, InitializingBean {
     // Si no existe lanza excepción
     Tarjeta tarjetaDeleted = tarjetasRepository.findById(id).orElseThrow(()-> new TarjetaNotFoundException(id));
     // La borramos del repositorio si existe
+    tarjetasRepository.deleteById(id);
+    // O lo marcamos como borrado, para evitar problemas de cascada
+    //tarjetasRepository.updateIsDeletedToTrueById(id);
+    // Enviamos la notificación a los clientes ws
+    onChange(Notificacion.Tipo.DELETE, tarjetaDeleted);
+
+  }
+
+  @CacheEvict(key = "#id")
+  @Override
+  public void deleteById(Long id, Long usuarioId) {
+    log.debug("Borrando tarjeta por id: {}", id);
+    // Si no existe lanza excepción
+    Tarjeta tarjetaDeleted = tarjetasRepository.findById(id).orElseThrow(()-> new TarjetaNotFoundException(id));
+    // La borramos del repositorio si existe y si pertenece al usuario
+    var usuario = tarjetaDeleted.getTitular().getUsuario();
+    if ((usuario != null) && (!usuario.getId().equals(usuarioId))) {
+      throw new TarjetaBadRequestException("La tarjeta " + id + " no corresponde a este usuario");
+    }
     tarjetasRepository.deleteById(id);
     // O lo marcamos como borrado, para evitar problemas de cascada
     //tarjetasRepository.updateIsDeletedToTrueById(id);
