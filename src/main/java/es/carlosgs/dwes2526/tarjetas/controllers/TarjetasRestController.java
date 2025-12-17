@@ -55,6 +55,9 @@ public class TarjetasRestController {
    * @param isDeleted Si está borrada o no
    * @return Lista paginada de tarjetas
    */
+  // Podemos activar CORS en SecurityConfig de manera centralizada
+  // o por método de esta manera
+  //@CrossOrigin(origins = "http://mifrontend.es")
   @GetMapping()
   public ResponseEntity<PageResponse<TarjetaResponseDto>> getAll(
       @RequestParam(required = false) Optional<String> numero,
