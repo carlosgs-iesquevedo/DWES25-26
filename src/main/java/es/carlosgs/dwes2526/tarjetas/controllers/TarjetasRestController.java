@@ -8,6 +8,12 @@ import es.carlosgs.dwes2526.tarjetas.exceptions.TarjetaNotFoundException;
 import es.carlosgs.dwes2526.tarjetas.services.TarjetasService;
 import es.carlosgs.dwes2526.utils.pagination.PageResponse;
 import es.carlosgs.dwes2526.utils.pagination.PaginationLinksUtils;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +44,7 @@ import java.util.Optional;
  * y que se encuentren en nuestro contenedor de Spring
  * con solo declarar las dependencias como final, ya que el constructor lo genera Lombok
  */
+@Tag(name = "Tarjetas", description = "Endpoint de Tarjetas de nuestra API")
 @Slf4j
 @RequiredArgsConstructor
 @RestController // Es un controlador Rest
@@ -55,6 +62,20 @@ public class TarjetasRestController {
    * @param isDeleted Si está borrada o no
    * @return Lista paginada de tarjetas
    */
+  @Operation(summary = "Obtiene todas las tarjetas", description = "Obtiene una lista de tarjetas")
+  @Parameters({
+      @Parameter(name = "numero", description = "Número de la tarjeta", example = ""),
+      @Parameter(name = "titular", description = "Titular de la tarjeta", example = ""),
+      @Parameter(name = "isDeleted", description = "Si está borrada o no", example = "false"),
+      @Parameter(name = "page", description = "Número de página", example = "0"),
+      @Parameter(name = "size", description = "Tamaño de la página", example = "10"),
+      @Parameter(name = "sortBy", description = "Campo de ordenación", example = "id"),
+      @Parameter(name = "direction", description = "Dirección de ordenación", example = "asc")
+  })
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Página de tarjetas"),
+  })
+
   // Podemos activar CORS en SecurityConfig de manera centralizada
   // o por método de esta manera
   //@CrossOrigin(origins = "http://mifrontend.es")
