@@ -8,6 +8,12 @@ import es.carlosgs.dwes2526.tarjetas.exceptions.TarjetaNotFoundException;
 import es.carlosgs.dwes2526.tarjetas.services.TarjetasService;
 import es.carlosgs.dwes2526.utils.pagination.PageResponse;
 import es.carlosgs.dwes2526.utils.pagination.PaginationLinksUtils;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +44,7 @@ import java.util.Optional;
  * y que se encuentren en nuestro contenedor de Spring
  * con solo declarar las dependencias como final, ya que el constructor lo genera Lombok
  */
+@Tag(name = "Tarjetas", description = "Endpoint de Tarjetas de nuestra API")
 @Slf4j
 @RequiredArgsConstructor
 @RestController // Es un controlador Rest
@@ -55,6 +62,22 @@ public class TarjetasRestController {
    * @param isDeleted Si está borrada o no
    * @return Lista paginada de tarjetas
    */
+  @Operation(summary = "Obtiene todas las tarjetas", description = "Obtiene una lista de tarjetas")
+  @Parameters({
+      @Parameter(name = "numero", description = "Número de la tarjeta", example = ""),
+      @Parameter(name = "titular", description = "Titular de la tarjeta", example = ""),
+      @Parameter(name = "isDeleted", description = "Si está borrada o no", example = "false"),
+      @Parameter(name = "page", description = "Número de página", example = "0"),
+      @Parameter(name = "size", description = "Tamaño de la página", example = "10"),
+      @Parameter(name = "sortBy", description = "Campo de ordenación", example = "id"),
+      @Parameter(name = "direction", description = "Dirección de ordenación", example = "asc")
+  })
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Página de tarjetas"),
+  })
+  // Podemos activar CORS en SecurityConfig de manera centralizada
+  // o por método de esta manera
+  //@CrossOrigin(origins = "http://mifrontend.es")
   @GetMapping()
   public ResponseEntity<PageResponse<TarjetaResponseDto>> getAll(
       @RequestParam(required = false) Optional<String> numero,
@@ -84,6 +107,14 @@ public class TarjetasRestController {
    * @return TarjetaResponseDto si existe
    * @throws TarjetaNotFoundException si no existe la tarjeta (404)
    */
+  @Operation(summary = "Obtiene una tarjeta por su id", description = "Obtiene una tarjeta por su id")
+  @Parameters({
+          @Parameter(name = "id", description = "Identificador de la tarjeta", example = "1", required = true)
+  })
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "Tarjeta"),
+          @ApiResponse(responseCode = "404", description = "Tarjeta no encontrada"),
+  })
   @GetMapping("/{id}")
   public ResponseEntity<TarjetaResponseDto> getById(@PathVariable Long id) {
     log.info("Buscando tarjeta por id={}", id);
@@ -97,6 +128,12 @@ public class TarjetasRestController {
    * @return TarjetaResponseDto creada
    * @throws TarjetaBadRequestException si la tarjeta no es correcta (400)
    */
+  @Operation(summary = "Crea una tarjeta", description = "Crea una tarjeta")
+  @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Tarjeta a crear", required = true)
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "201", description = "Tarjeta creada"),
+          @ApiResponse(responseCode = "400", description = "Tarjeta no válida"),
+  })
   @PostMapping()
   public ResponseEntity<TarjetaResponseDto> create(@Valid @RequestBody TarjetaCreateDto tarjetaCreateDto) {
     log.info("Creando tarjeta : {}", tarjetaCreateDto);
@@ -114,6 +151,16 @@ public class TarjetasRestController {
    * @throws TarjetaNotFoundException si no existe la tarjeta (404)
    * @throws TarjetaBadRequestException si la tarjeta no es correcta (400)
    */
+  @Operation(summary = "Actualiza una tarjeta", description = "Actualiza una tarjeta")
+  @Parameters({
+          @Parameter(name = "id", description = "Identificador de la tarjeta", example = "1", required = true)
+  })
+  @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Tarjeta a actualizar", required = true)
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "Tarjeta actualizada"),
+          @ApiResponse(responseCode = "400", description = "Tarjeta no válida"),
+          @ApiResponse(responseCode = "404", description = "Tarjeta no encontrada"),
+  })
   @PutMapping("/{id}")
   public ResponseEntity<TarjetaResponseDto> update(@PathVariable Long id, @Valid @RequestBody TarjetaUpdateDto tarjetaUpdateDto) {
     log.info("Actualizando tarjeta id={} con tarjeta={}", id, tarjetaUpdateDto);
@@ -129,6 +176,16 @@ public class TarjetasRestController {
    * @throws TarjetaNotFoundException si no existe la tarjeta (404)
    * @throws TarjetaBadRequestException si la tarjeta no es correcta (400)
    */
+  @Operation(summary = "Actualiza parcialmente una tarjeta", description = "Actualiza parcialmente una tarjeta")
+  @Parameters({
+          @Parameter(name = "id", description = "Identificador de la tarjeta", example = "1", required = true)
+  })
+  @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Tarjeta a actualizar", required = true)
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "Tarjeta actualizada"),
+          @ApiResponse(responseCode = "400", description = "Tarjeta no válida"),
+          @ApiResponse(responseCode = "404", description = "Tarjeta no encontrada"),
+  })
   @PatchMapping("/{id}")
   public ResponseEntity<TarjetaResponseDto> updatePartial(@PathVariable Long id, @Valid @RequestBody TarjetaUpdateDto tarjetaUpdateDto) {
     log.info("Actualizando parcialmente tarjeta con id={} con tarjeta={}",id, tarjetaUpdateDto);
@@ -142,6 +199,14 @@ public class TarjetasRestController {
    * @return ResponseEntity con status 204 No Content si se ha conseguido borradr
    * @throws TarjetaNotFoundException si no existe la tarjeta (404)
    */
+  @Operation(summary = "Borra una tarjeta", description = "Borra una tarjeta")
+  @Parameters({
+          @Parameter(name = "id", description = "Identificador de la tarjeta", example = "1", required = true)
+  })
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "204", description = "Tarjeta borrada"),
+          @ApiResponse(responseCode = "404", description = "Tarjeta no encontrada"),
+  })
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> delete(@PathVariable Long id) {
     log.info("Borrando producto por id: {}", id);
