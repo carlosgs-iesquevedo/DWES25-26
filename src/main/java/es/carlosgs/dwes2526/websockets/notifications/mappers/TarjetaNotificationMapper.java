@@ -1,6 +1,6 @@
 package es.carlosgs.dwes2526.websockets.notifications.mappers;
 
-import es.carlosgs.dwes2526.tarjetas.models.Tarjeta;
+import es.carlosgs.dwes2526.rest.tarjetas.models.Tarjeta;
 import es.carlosgs.dwes2526.websockets.notifications.dto.TarjetaNotificationResponse;
 import org.springframework.stereotype.Component;
 

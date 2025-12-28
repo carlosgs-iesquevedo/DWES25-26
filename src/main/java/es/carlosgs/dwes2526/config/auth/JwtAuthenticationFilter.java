@@ -1,7 +1,7 @@
 package es.carlosgs.dwes2526.config.auth;
 
-import es.carlosgs.dwes2526.auth.services.jwt.JwtService;
-import es.carlosgs.dwes2526.auth.services.users.AuthUsersService;
+import es.carlosgs.dwes2526.rest.auth.services.jwt.JwtService;
+import es.carlosgs.dwes2526.rest.auth.services.users.AuthUsersService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
