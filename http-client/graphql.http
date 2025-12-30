@@ -1,0 +1,61 @@
+### Todas las tarjetas
+GRAPHQL http://localhost:3000/graphql
+
+query {
+   tarjetas {
+     id
+     numero
+     cvc
+     fechaCaducidad
+     saldo
+     titular {
+       id
+       nombre
+     }
+   }
+}
+
+### Tarjeta por Id
+GRAPHQL http://localhost:3000/graphql
+
+query {
+  tarjetaById(id: "1") {
+    numero
+    cvc
+    fechaCaducidad
+    saldo
+    titular {
+      nombre
+    }
+  }
+}
+
+### Todos los titulares
+GRAPHQL http://localhost:3000/graphql
+
+query {
+    titularById(id: "2") {
+     nombre
+     tarjetas {
+       id
+       numero
+       cvc
+       fechaCaducidad
+       saldo
+     }
+   }
+}
+
+
+### Solo datos principales de tarjetas y titulares
+GRAPHQL http://localhost:3000/graphql
+
+query {
+   tarjetas {
+     numero
+     cvc
+     titular {
+       nombre
+     }
+   }
+}

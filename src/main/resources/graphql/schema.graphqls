@@ -1,0 +1,152 @@
+# ==========================================================================
+# ESQUEMA GRAPHQL PARA TARJETA Y TITULAR
+# ==========================================================================
+# Este esquema permite consultar tarjetas con su titular y titulares
+# con sus tarjetas. Es un ejemplo educativo de como estructurar GraphQL.
+#
+# QUE ES UN ESQUEMA GRAPHQL:
+# Un esquema GraphQL define formalmente los tipos de datos, consultas y
+# mutaciones que una API puede manejar. Es el contrato entre cliente y servidor.
+#
+# COMPONENTES CLAVE:
+# 1. Tipos (Types): Define objetos, listas, escalares (String, Int, Float, Boolean, ID)
+# 2. Consultas (Queries): Operaciones de lectura para obtener datos
+# 3. Mutaciones (Mutations): Operaciones de escritura para modificar datos
+# 4. Suscripciones (Subscriptions): Actualizaciones en tiempo real
+# 5. Relaciones: Como se conectan los diferentes tipos entre si
+#
+# NOTACIÓN BÁSICA:
+# - Los tipos se definen con 'type NombreTipo { campos }'
+# - Los campos se definen como 'nombre: Tipo'
+# - Tipos escalares: String, Int, Float, Boolean, ID
+# - Campo obligatorio: 'nombre: String!' (no puede ser nulo)
+# - Campo opcional: 'nombre: String' (puede ser nulo)
+# - Lista: '[String!]!' = lista no nula de strings no nulos
+# - Lista opcional: '[String]' = lista que puede ser nula con elementos que pueden ser nulos
+# - Comentarios de linea: # (como este)
+# - Las queries van en el tipo 'Query', las mutations en 'Mutation'
+#
+# EJEMPLO DE NOTACION:
+# tarjetas: [Tarjeta!]! significa:
+# - El campo se llama 'tarjetas'
+# - Es una lista (corchetes [])
+# - Contiene elementos del tipo 'Tarjeta'
+# - Cada elemento es obligatorio (Tarjeta!)
+# - La lista en si es obligatoria (!al final)
+# ==========================================================================
+
+# --- CONSULTAS DISPONIBLES ---
+# Aqui se definen todas las operaciones de lectura que pueden hacer los clientes
+type Query {
+    # Devuelve la lista completa de todas las tarjetas disponibles
+    tarjetas: [Tarjeta!]!
+
+    # Busca y devuelve una tarjeta especifica por su identificador unico
+    # Parámetro: id (obligatorio) - El ID de la tarjeta a buscar
+    # Retorna: Tarjeta o null si no existe
+    tarjetaById(id: ID!): Tarjeta
+
+    # Devuelve la lista completa de todos los titulares disponibles
+    titulares: [Titular!]!
+
+    # Busca y devuelve un titular especifico por su identificador unico
+    # Parametro: id (obligatorio) - El ID del titular a buscar
+    # Retorna: Titular o null si no existe
+    titularById(id: ID!): Titular
+
+    # Busca y devuelve una lista de titulares que coincidan con el nombre dado
+    # Parametro: nombre (obligatorio) - El nombre del titular a buscar
+    # Retorna: Lista de titulares que coincidan con el nombre
+    titularesByNombre(nombre: String!): [Titular!]!
+}
+
+# --- TIPO TARJETA ---
+# Representa una tarjeta con todos sus atributos y relaciones
+type Tarjeta {
+    id: ID!                   # Identificador único numérico autoincremental (Long en Java)
+    numero: String!           # Número de la tarjeta (ej: "1234-5678-1234-5678")
+    cvc: String!              # Código de verificación (ej: "345")
+    fechaCaducidad: String!   # Fecha de caducidad (formato ISO 8601)
+    saldo: Float!             # Saldo actual en euros
+    uuid: String!             # Identificador UUID unico de la tarjeta (para APIs externas)
+    createdAt: String!        # Fecha y hora de creación (formato ISO 8601)
+    updatedAt: String!        # Fecha y hora de ultima modificación (formato ISO 8601)
+    isDeleted: Boolean!       # Indica si la tarjeta está marcada como eliminada (borrado logico)
+    titular: Titular!         # Titular al que pertenece esta tarjeta (relación ManyToOne)
+}
+
+# --- TIPO TITULAR ---
+# Representa un titular de tarjetas con sus atributos y productos asociados
+type Titular {
+    id: ID!                   # Identificador único del titular
+    nombre: String!           # Nombre descriptivo de la categoria (ej: "Deportes", "Electronica")
+    createdAt: String!        # Fecha y hora de creación (formato ISO 8601)
+    updatedAt: String!        # Fecha y hora de última modificación (formato ISO 8601)
+    isDeleted: Boolean!       # Indica si el titular está marcado como eliminado (borrado logico)
+    tarjetas: [Tarjeta!]!     # Lista de todas las tarjetas de este titular (relación OneToMany)
+}
+
+# ==========================================================================
+# EJEMPLOS DE CONSULTAS PARA EL ALUMNADO:
+# ==========================================================================
+#
+# 1. OBTENER TODAS LAS TARJETAS CON SU TITULAR:
+# query {
+#   tarjetas {
+#     id
+#     numero
+#     cvc
+#     fechaCaducidad
+#     saldo
+#     titular {
+#       id
+#       nombre
+#     }
+#   }
+# }
+#
+# 2. OBTENER UNA TARJETA ESPECÍFICA POR ID:
+# query {
+#   tarjetaById(id: "1") {
+#     numero
+#     cvc
+#     fechaCaducidad
+#     saldo
+#     titular {
+#       nombre
+#     }
+#   }
+# }
+#
+# 3. OBTENER UN TITULAR CON TODAS SUS TARJETAS:
+# query {
+#   titularById(id: "id-del-titular") {
+#     nombre
+#     tarjetas {
+#       id
+#       numero
+#       cvc
+#       fechaCaducidad
+#       saldo
+#     }
+#   }
+# }
+#
+# 4. OBTENER SOLO NOMBRES DE TARJETAS Y TITULARES:
+# query {
+#   tarjetas {
+#     numero
+#     cvc
+#     titular {
+#       nombre
+#     }
+#   }
+# }
+#
+# NOTAS IMPORTANTES:
+# - En GraphQL solo obtienes los campos que pides explícitamente
+# - Puedes anidar relaciones (tarjeta -> titular -> tarjetas -> titular...)
+# - El servidor valida automáticamente que las queries cumplan el esquema
+# - Puedes ampliar con Mutations para crear/actualizar/borrar datos
+# - Puedes añadir paginación, filtros y ordenación a las listas
+# ==========================================================================
