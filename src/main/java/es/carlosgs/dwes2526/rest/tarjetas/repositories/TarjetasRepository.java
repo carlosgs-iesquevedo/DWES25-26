@@ -1,6 +1,7 @@
 package es.carlosgs.dwes2526.rest.tarjetas.repositories;
 
 import es.carlosgs.dwes2526.rest.tarjetas.models.Tarjeta;
+import es.carlosgs.dwes2526.rest.titulares.models.Titular;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -42,5 +43,8 @@ public interface TarjetasRepository extends JpaRepository<Tarjeta, Long>, JpaSpe
   // Obtiene si existe una tarjeta con el id del usuario
   @Query("SELECT CASE WHEN COUNT(t) > 0 THEN true ELSE false END FROM Tarjeta t WHERE t.titular.usuario.id = :id")
   Boolean existsByUsuarioId(Long id);
+
+  // Añadido para consulta GraphQL
+  List<Tarjeta> findByTitular(Titular titular);
 
 }
