@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+{% include "fragments/head" %}
+
+<body class="d-flex flex-column min-vh-100">
+
+<div class="container mb-5">
+
+    <!-- Lista de Tarjetas -->
+    {% if tarjetas is empty %}
+    <div class="alert alert-info text-center">
+        <i class="bi bi-info-circle"></i> No se han encontrado tarjetas
+    </div>
+    {% else %}
+    <table class="table table-striped">
+        <tr>
+            <th>ID</th>
+            <th>Número</th>
+            <th>CVC</th>
+            <th>Fecha de caducidad</th>
+            <th>Saldo</th>
+            <th>Operaciones</th>
+        </tr>
+        {% for tarjeta in tarjetas.content %}
+        <tr>
+            <td>{{ tarjeta.id }}</td>
+            <td>{{ tarjeta.numero }} </td>
+            <td>{{ tarjeta.cvc }}</td>
+            <td>{{ tarjeta.fechaCaducidad }}</td>
+            <td>{{ tarjeta.saldo }}</td>
+            <td></td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <!-- Controles de Paginación -->
+
+    {% endif %}
+</div>
+
+{% include "fragments/footer" %}
+
+<!-- Bootstrap 5.3 JS Bundle with Popper -->
+<script src="/webjars/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
