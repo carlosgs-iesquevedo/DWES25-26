@@ -28,7 +28,7 @@
             <td>{{ tarjeta.cvc }}</td>
             <td>{{ tarjeta.fechaCaducidad }}</td>
             <td>{{ tarjeta.saldo }}</td>
-            <td></td>
+            <td><a href="tarjetas/{{ tarjeta.id }}">Ver detalle</a></td>
         </tr>
         {% endfor %}
     </table>
@@ -61,7 +61,7 @@
                     {% endif %}
 
                     <!-- Números de página -->
-                    {% for i in range(0, page.totalPages) %}
+                    {% for i in range(0, page.totalPages - 1) %}
                     {% if i == page.number %}
                     <li class="page-item active">
                         <span class="page-link">{{ i + 1 }}</span>

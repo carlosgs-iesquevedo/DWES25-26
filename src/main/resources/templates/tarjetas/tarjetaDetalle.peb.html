@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+{% include "fragments/head" %}
+
+<body class="d-flex flex-column min-vh-100">
+
+<div class="container mb-5">
+
+    <!-- Lista de Tarjetas -->
+    {% if tarjeta is empty %}
+    <div class="alert alert-info text-center">
+        <i class="bi bi-info-circle"></i> No se han encontrado tarjetas
+    </div>
+    {% else %}
+    <h2> Detalle de la tarjeta {{ tarjeta.id }}</h2>
+    <ul>
+        <li> Número: {{ tarjeta.numero }}</li>
+        <li> CVC: {{ tarjeta.cvc }}</li>
+    </ul>
+    {% endif %}
+</div>
+
+{% include "fragments/footer" %}
+
+<!-- Bootstrap 5.3 JS Bundle with Popper -->
+<script src="/webjars/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
