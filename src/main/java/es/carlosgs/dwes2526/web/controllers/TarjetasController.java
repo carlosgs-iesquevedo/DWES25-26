@@ -30,7 +30,7 @@ public class TarjetasController {
     }
 
   @GetMapping({"", "/", "/lista"})
-  public String index(Model model,
+  public String lista(Model model,
                       @RequestParam(name = "page", defaultValue = "0") int page,
                       @RequestParam(name = "size", defaultValue = "4") int size){
     Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());

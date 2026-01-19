@@ -6,13 +6,14 @@
 
 <h2>{% if tarjetas['new'] %}Nueva {% endif %} Tarjeta</h2>
 <form class="form-horizontal" id="add-tarjeta-form" method="post"
-      action="{% if tarjeta.id is empty %}/tarjetas/edit{% else %}/tarjetas/new{% endif %}">
+      action="{% if tarjeta.id is not empty %}/tarjetas/edit{% else %}/tarjetas/new{% endif %}">
     <div class="form-group has-feedback">
         <input type="hidden" id="id" name="id" value="{{ tarjeta.id | default(0) }}">
         {{ inputField("tarjeta", "Número", "numero", "text", tarjeta.numero, _context) }}
         {{ inputField("tarjeta", "CVC", "cvc", "text", tarjeta.cvc, _context) }}
         {{ inputField("tarjeta", "Fecha de caducidad", "fechaCaducidad", "date", tarjeta.fechaCaducidad, _context) }}
         {{ inputField("tarjeta", "Saldo", "saldo", "number", tarjeta.saldo, _context) }}
+        {{ inputField("tarjeta", "Titular", "titular", "text", tarjeta.titular, _context) }}
     </div>
     <div class="form-group">
       <div class="col-sm-offset-2 col-sm-10">
