@@ -1,11 +1,6 @@
-<!DOCTYPE html>
-<html lang="es">
-{% include "fragments/head" %}
+{% extends "fragments/layout" %}
 
-<body class="d-flex flex-column min-vh-100">
-{% include "fragments/navbar" %}
-
-<div class="container mb-5">
+{% block body %}
 
     <!-- Lista de Tarjetas -->
     {% if tarjeta is empty %}
@@ -19,12 +14,5 @@
         <li> {{ message('label.tarjeta.cvc') }}: {{ tarjeta.cvc }}</li>
     </ul>
     {% endif %}
-</div>
 
-{% include "fragments/footer" %}
-
-<!-- Bootstrap 5.3 JS Bundle with Popper -->
-<script src="/webjars/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-
-</body>
-</html>
+{% endblock %}
