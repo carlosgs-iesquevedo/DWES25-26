@@ -1,6 +1,6 @@
 {% macro inputField(formName, label, inputName, type, inputValue, _context) %}
 
-  {% set valid = not hasFieldErrors(formName, inputName) %}
+{% set valid = not hasFieldErrors(formName, inputName) %}
 
   <div class="form-group {{ valid ? '': 'has-error'}}">
     <label class="col-sm-2 control-label">{{ label }}</label>

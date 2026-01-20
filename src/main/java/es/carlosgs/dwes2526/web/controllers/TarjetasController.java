@@ -2,9 +2,12 @@ package es.carlosgs.dwes2526.web.controllers;
 
 import es.carlosgs.dwes2526.rest.tarjetas.dto.TarjetaCreateDto;
 import es.carlosgs.dwes2526.rest.tarjetas.dto.TarjetaResponseDto;
+import es.carlosgs.dwes2526.rest.tarjetas.dto.TarjetaUpdateDto;
+import es.carlosgs.dwes2526.rest.tarjetas.models.Tarjeta;
 import es.carlosgs.dwes2526.rest.tarjetas.services.TarjetasService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -12,10 +15,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.Objects;
 import java.util.Optional;
 
+@Slf4j
 @RequiredArgsConstructor
 @Controller
 @RequestMapping("tarjetas")
@@ -46,21 +53,63 @@ public class TarjetasController {
   public String nuevaTarjetaForm(Model model) {
     // Lo añadimos al model
     model.addAttribute("tarjeta", TarjetaCreateDto.builder().build());
+    model.addAttribute("modoEditar", false );
     return "/tarjetas/form";
   }
 
   @PostMapping("/new")
-  public String nuevaTarjetaSubmit(@Valid @ModelAttribute TarjetaCreateDto tarjeta,
+  public String nuevaTarjetaSubmit(@Valid @ModelAttribute("tarjeta") TarjetaCreateDto tarjeta,
                                     BindingResult bindingResult) {
 
+    log.info("Datos recibidos del formulario: {}", tarjeta);
     // Si no tiene errores...
     if (bindingResult.hasErrors()) {
+      log.info("hay errores en la validación");
       return "/tarjetas/form";
     } else {
       //insertamos
       tarjetasService.save(tarjeta);
       return "redirect:/tarjetas/lista";
     }
+  }
+
+  @GetMapping("/{id}/edit")
+  public String editarTarjetaForm(@PathVariable Long id, Model model) {
+    TarjetaResponseDto tarjetaEncontrada = tarjetasService.findById(id);
+    if (tarjetaEncontrada == null) {
+      return "redirect:/tarjetas/new";
+    } else {
+      TarjetaUpdateDto tarjeta = TarjetaUpdateDto.builder()
+          .numero(tarjetaEncontrada.getNumero())
+          .cvc(tarjetaEncontrada.getCvc())
+          .fechaCaducidad(tarjetaEncontrada.getFechaCaducidad())
+          .saldo(tarjetaEncontrada.getSaldo())
+          .build();
+      model.addAttribute("tarjeta", tarjeta);
+      model.addAttribute("tarjetaId", id );
+      model.addAttribute("modoEditar", true);
+      return "tarjetas/form";
+    }
+  }
+
+  @PostMapping("/{id}/edit")
+  public String editarTarjetaSubmit(@PathVariable("id") Long id,
+                                 @Valid @ModelAttribute("tarjeta") TarjetaUpdateDto tarjeta,
+                                 BindingResult result,
+                                 Model model,
+                                 RedirectAttributes redirectAttributes) {
+    if (result.hasErrors()) {
+      redirectAttributes.addFlashAttribute("error",
+          "Ha ocurrido un error al actualizar el tarjeta.");
+      model.addAttribute("tarjetaId", id );
+      model.addAttribute("modoEditar", true);
+      return "/tarjetas/form";
+    }
+
+    tarjetasService.update(id, tarjeta);
+    redirectAttributes.addFlashAttribute("message",
+        "Tarjeta actualizada correctamente.");
+    return "redirect:/tarjetas/{id}";
   }
 
 }
