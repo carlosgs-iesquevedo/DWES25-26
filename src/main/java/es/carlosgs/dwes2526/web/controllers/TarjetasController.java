@@ -3,7 +3,6 @@ package es.carlosgs.dwes2526.web.controllers;
 import es.carlosgs.dwes2526.rest.tarjetas.dto.TarjetaCreateDto;
 import es.carlosgs.dwes2526.rest.tarjetas.dto.TarjetaResponseDto;
 import es.carlosgs.dwes2526.rest.tarjetas.dto.TarjetaUpdateDto;
-import es.carlosgs.dwes2526.rest.tarjetas.models.Tarjeta;
 import es.carlosgs.dwes2526.rest.tarjetas.services.TarjetasService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -15,11 +14,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
