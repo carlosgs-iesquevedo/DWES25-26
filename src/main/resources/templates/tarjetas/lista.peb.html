@@ -15,7 +15,7 @@
             <th>CVC</th>
             <th>Fecha de caducidad</th>
             <th>Saldo</th>
-            <th>Operaciones</th>
+            <th>Acciones</th>
         </tr>
         {% for tarjeta in page.content %}
         <tr>
@@ -24,7 +24,9 @@
             <td>{{ tarjeta.cvc }}</td>
             <td>{{ tarjeta.fechaCaducidad }}</td>
             <td>{{ tarjeta.saldo }}</td>
-            <td><a href="tarjetas/{{ tarjeta.id }}">Ver detalle</a></td>
+            <td><a href="/tarjetas/{{ tarjeta.id }}"><i class="bi bi-eye"></i></a>
+                <a href="/tarjetas/{{ tarjeta.id }}/edit"><i class="bi bi-pencil"></i></a>
+            </td>
         </tr>
         {% endfor %}
     </table>
