@@ -109,4 +109,13 @@ public class TarjetasController {
     return "redirect:/tarjetas/{id}";
   }
 
+    @GetMapping("/{id}/delete")
+    public String borrarTarjeta(@PathVariable Long id) {
+
+        // TO DO Borrar con confirmación mediante ventana modal
+
+        tarjetasService.deleteById(id);
+        return "redirect:/tarjetas/lista";
+    }
+
 }
