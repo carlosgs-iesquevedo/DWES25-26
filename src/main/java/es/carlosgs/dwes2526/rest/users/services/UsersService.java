@@ -24,4 +24,5 @@ public interface UsersService {
 
   List<User> findAllActiveUsers();
 
+  Optional<User> findByUsername(String username);
 }

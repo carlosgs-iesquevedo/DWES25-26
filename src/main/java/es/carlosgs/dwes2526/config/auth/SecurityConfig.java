@@ -120,8 +120,8 @@ public class SecurityConfig {
     @Order(4)
     public SecurityFilterChain formLoginFilterChain(HttpSecurity http) throws Exception {
         http
-                // Deshabilitamos CSRF
-                .csrf(AbstractHttpConfigurer::disable)
+                // Dejamos habilitado CSRF cuando tengamos los formularios con csrfToken
+                //.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/public", "/public/", "/public/**").permitAll()  // ← AÑADIR SIN /**
                         .requestMatchers("/", "/auth/**", "/webjars/**", "/css/**").permitAll()
