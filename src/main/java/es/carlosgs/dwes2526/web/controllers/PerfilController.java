@@ -18,29 +18,28 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/app/perfil")
 public class PerfilController {
 
-    private UsersService userService;
+    private final UsersService usersService;
 
     @GetMapping
     public String showProfile(Model model) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userService.findByUsername(email).orElse(null);
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = usersService.findByUsername(username).orElse(null);
         model.addAttribute("usuario", user);
         return "app/perfil";
     }
 
-    /*
-
-    @PostMapping("/editar")
+    @PostMapping("/edit")
     public String updateProfile(@Valid @ModelAttribute("usuario") User updatedUser,
                                 BindingResult bindingResult,
                                 Model model) {
 
         if (bindingResult.hasErrors()) {
-            return "app/perfil";
+          model.addAttribute("mensaje", "Ha ocurrido un error al actualizar el perfil.");
+          return "app/perfil";
         }
 
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User existingUser = userService.findByUsername(email).orElse(null);
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User existingUser = usersService.findByUsername(username).orElse(null);
 
         // Update only allowed fields
         if (existingUser != null) {
@@ -48,19 +47,12 @@ public class PerfilController {
             existingUser.setApellidos(updatedUser.getApellidos());
         }
 
-        userService.save(existingUser);
+        usersService.save(existingUser);
         model.addAttribute("mensaje", "Perfil actualizado correctamente");
         model.addAttribute("usuario", existingUser);
 
-        return "app/perfil";
+        return "redirect:/app/perfil";
     }
 
-     */
 
-    /**
-     * Helper method to check if a path is an external URL
-     */
-    private boolean isExternalUrl(String path) {
-        return path != null && (path.startsWith("http://") || path.startsWith("https://"));
-    }
 }

@@ -128,4 +128,8 @@ public class UsersServiceImpl implements UsersService {
   public Optional<User> findByUsername(String username) {
       return usersRepository.findByUsername(username);
   }
+
+  public void save(User user) {
+    usersRepository.save(user);
+  }
 }
