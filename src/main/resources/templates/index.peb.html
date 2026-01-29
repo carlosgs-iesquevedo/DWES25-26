@@ -12,7 +12,11 @@
     <h1 class="display-4">Saludos, visitante</h1>
     {% endif %}
     <p class="text-center">
-      <a class="btn btn-lg btn-success" href="/tarjetas/lista">Comenzar</a>
+      {% if isAdmin %}
+      <a class="btn btn-lg btn-primary" href="/admin/tarjetas">Ir al Panel de Administración</a>
+      {% else %}
+      <a class="btn btn-lg btn-success" href="/app/mistarjetas">Comenzar</a>
+      {% endif %}
     </p>
   </div>
 </div>

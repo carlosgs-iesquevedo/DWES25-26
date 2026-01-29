@@ -24,9 +24,9 @@
     <td>{{ tarjeta.cvc }}</td>
     <td>{{ tarjeta.fechaCaducidad }}</td>
     <td>{{ tarjeta.saldo }}</td>
-    <td><a href="/tarjetas/{{ tarjeta.id }}"><i class="bi bi-eye"></i></a>
-      <a href="/tarjetas/{{ tarjeta.id }}/edit"><i class="bi bi-pencil"></i></a>
-      <a href="/tarjetas/{{ tarjeta.id }}/delete"><i class="bi bi-trash"></i></a>
+    <td><a href="/admin/tarjetas/{{ tarjeta.id }}"><i class="bi bi-eye"></i></a>
+      <a href="/admin/tarjetas/{{ tarjeta.id }}/edit"><i class="bi bi-pencil"></i></a>
+      <a href="/admin/tarjetas/{{ tarjeta.id }}/delete"><i class="bi bi-trash"></i></a>
     </td>
   </tr>
   {% endfor %}

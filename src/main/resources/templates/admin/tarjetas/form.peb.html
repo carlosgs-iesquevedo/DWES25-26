@@ -6,7 +6,7 @@
 
 <h2>{% if not modoEditar %}Nueva {% endif %} Tarjeta</h2>
 <form class="form-horizontal" id="add-tarjeta-form" method="post"
-      action="{% if modoEditar %}/tarjetas/{{tarjetaId}}/edit{% else %}/tarjetas/new{% endif %}">
+      action="{% if modoEditar %}/admin/tarjetas/{{tarjetaId}}/edit{% else %}/admin/tarjetas/new{% endif %}">
   <input name="{{ csrfParamName }}" type="hidden" value="{{ csrfToken }}">
   <div class="form-group has-feedback">
     {{ inputField("tarjeta", "Número", "numero", "text", tarjeta.numero, _context) }}

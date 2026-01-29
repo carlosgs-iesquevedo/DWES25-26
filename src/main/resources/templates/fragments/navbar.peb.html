@@ -14,10 +14,12 @@
           <a class="nav-link active" href="/public">
             <i class="bi bi-house-door"></i> {{ message('nav.home') }}</a>
         </li>
+        {% if isAdmin %}
         <li class="nav-item">
-          <a class="nav-link" href="/tarjetas/new">
+          <a class="nav-link" href="/admin/tarjetas/new">
             <i class="bi bi-credit-card-fill"></i> {{ message('nav.new.tarjetas') }}</a>
         </li>
+        {% endif %}
       </ul>
 
       <form action="/public" class="d-flex me-3" method="get" role="search">
