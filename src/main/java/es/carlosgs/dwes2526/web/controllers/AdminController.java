@@ -5,6 +5,7 @@ import es.carlosgs.dwes2526.rest.tarjetas.dto.TarjetaResponseDto;
 import es.carlosgs.dwes2526.rest.tarjetas.dto.TarjetaUpdateDto;
 import es.carlosgs.dwes2526.rest.tarjetas.models.Tarjeta;
 import es.carlosgs.dwes2526.rest.tarjetas.services.TarjetasService;
+import es.carlosgs.dwes2526.web.services.I18nService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,7 @@ import java.util.Optional;
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
   private final TarjetasService tarjetasService;
+  private final I18nService i18nService;
 
 
   @GetMapping("/tarjetas")
@@ -78,7 +80,7 @@ public class AdminController {
   public String editarTarjetaForm(@PathVariable Long id, Model model) {
     Tarjeta tarjetaEncontrada = tarjetasService.buscarPorId(id).orElse(null);
     if (tarjetaEncontrada == null) {
-      return "redirect:admin/tarjetas/new";
+      return "redirect:/admin/tarjetas/new";
     } else {
       TarjetaUpdateDto tarjeta = TarjetaUpdateDto.builder()
           .numero(tarjetaEncontrada.getNumero())
@@ -108,18 +110,37 @@ public class AdminController {
     }
 
     tarjetasService.update(id, tarjeta);
-    redirectAttributes.addFlashAttribute("message",
+    redirectAttributes.addFlashAttribute("success",
         "Tarjeta actualizada correctamente.");
     return "redirect:/admin/tarjetas/{id}";
   }
 
-    @GetMapping("/tarjetas/{id}/delete")
-    public String borrarTarjeta(@PathVariable Long id) {
+  @GetMapping("/tarjetas/{id}/delete")
+  public String borrarTarjeta(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+    tarjetasService.deleteById(id);
+    redirectAttributes.addFlashAttribute("success",
+      String.format("Tarjeta '%s' eliminada correctamente.", id));
+    return "redirect:/admin/tarjetas";
+  }
 
-        // TO DO Borrar con confirmación mediante ventana modal
+  @GetMapping("/tarjetas/{id}/delete/confirm")
+  public String showModalBorrar(@PathVariable("id") Long id, Model model) {
+    Optional<Tarjeta> tarjeta = tarjetasService.buscarPorId(id);
+    String deleteMessage = "";
+    if (tarjeta.isPresent())
+      deleteMessage = i18nService.getMessage("tarjetas.borrar.mensaje",
+        new Object[]{tarjeta.get().getNumero()} );
+      //deleteMessage = "¿Confirma el borrado de la tarjeta " + tarjeta.getNumero() + " ?";
+    else
+      return "redirect:/tarjetas/?error=true";
 
-        tarjetasService.deleteById(id);
-        return "redirect:/admin/tarjetas";
-    }
+    model.addAttribute("deleteUrl", "/admin/tarjetas/" + id + "/delete");
+    model.addAttribute("deleteTitle",
+      i18nService.getMessage("tarjetas.borrar.titulo")
+      //        "Borrar tarjeta"
+    );
+    model.addAttribute("deleteMessage", deleteMessage);
+    return "fragments/deleteModal";
+  }
 
 }
