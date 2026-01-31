@@ -6,6 +6,7 @@ import es.carlosgs.dwes2526.rest.tarjetas.dto.TarjetaUpdateDto;
 import es.carlosgs.dwes2526.rest.tarjetas.models.Tarjeta;
 import es.carlosgs.dwes2526.rest.tarjetas.services.TarjetasService;
 import es.carlosgs.dwes2526.web.services.I18nService;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -115,29 +117,48 @@ public class AdminController {
     return "redirect:/admin/tarjetas/{id}";
   }
 
-  @GetMapping("/tarjetas/{id}/delete")
-  public String borrarTarjeta(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+
+  // ahora requiere POST y un token de confirmación almacenado en sesión
+  @PostMapping("/tarjetas/{id}/delete")
+  public String borrarTarjeta(@PathVariable Long id,
+                              @RequestParam("deleteToken") String deleteToken,
+                              HttpSession session,
+                              RedirectAttributes redirectAttributes) {
+    String sessionKey = "deleteToken_" + id;
+    String tokenInSession = (String) session.getAttribute(sessionKey);
+
+    if (tokenInSession == null || !tokenInSession.equals(deleteToken)) {
+      redirectAttributes.addFlashAttribute("error", "Confirmación inválida o caducada.");
+      return "redirect:/admin/tarjetas";
+    }
+
+    // invalidar token y proceder al borrado
+    session.removeAttribute(sessionKey);
     tarjetasService.deleteById(id);
-    redirectAttributes.addFlashAttribute("success",
-      String.format("Tarjeta '%s' eliminada correctamente.", id));
+    redirectAttributes.addFlashAttribute("success", "Tarjeta borrada correctamente.");
     return "redirect:/admin/tarjetas";
   }
 
   @GetMapping("/tarjetas/{id}/delete/confirm")
-  public String showModalBorrar(@PathVariable("id") Long id, Model model) {
+  public String showModalBorrar(@PathVariable("id") Long id, Model model, HttpSession session) {
     Optional<Tarjeta> tarjeta = tarjetasService.buscarPorId(id);
-    String deleteMessage = "";
-    if (tarjeta.isPresent())
+    String deleteMessage;
+    if (tarjeta.isPresent()) {
       deleteMessage = i18nService.getMessage("tarjetas.borrar.mensaje",
         new Object[]{tarjeta.get().getNumero()} );
-      //deleteMessage = "¿Confirma el borrado de la tarjeta " + tarjeta.getNumero() + " ?";
-    else
+    } else {
       return "redirect:/tarjetas/?error=true";
+    }
+
+    // generar token de un solo uso y guardarlo en sesión
+    String token = UUID.randomUUID().toString();
+    String sessionKey = "deleteToken_" + id;
+    session.setAttribute(sessionKey, token);
 
     model.addAttribute("deleteUrl", "/admin/tarjetas/" + id + "/delete");
+    model.addAttribute("deleteToken", token);
     model.addAttribute("deleteTitle",
       i18nService.getMessage("tarjetas.borrar.titulo")
-      //        "Borrar tarjeta"
     );
     model.addAttribute("deleteMessage", deleteMessage);
     return "fragments/deleteModal";
