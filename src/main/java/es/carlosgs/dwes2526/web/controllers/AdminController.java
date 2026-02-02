@@ -46,6 +46,19 @@ public class AdminController {
     return "admin/tarjetas/lista";
   }
 
+  @GetMapping("/tarjetas/filter")
+  public String tarjetasFiltrar(Model model,
+                         @RequestParam(required = false) Optional<String> numero,
+                         @RequestParam(name = "page", defaultValue = "0") int page,
+                         @RequestParam(name = "size", defaultValue = "4") int size){
+    Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());
+    Page<TarjetaResponseDto> tarjetasPage = tarjetasService.findAll(
+      numero, Optional.empty(), Optional.empty(), pageable);
+
+    model.addAttribute("page", tarjetasPage);
+    return "fragments/listaTarjetas";
+  }
+
   @GetMapping("/tarjetas/{id}")
   public String getById(@PathVariable Long id, Model model) {
     Tarjeta tarjeta = tarjetasService.buscarPorId(id).orElse(null);

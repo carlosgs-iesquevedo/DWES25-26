@@ -37,4 +37,19 @@ document.addEventListener('DOMContentLoaded', () =>{
 
     })
 
+    const buscador = document.querySelector('#buscador');
+    buscador.addEventListener('keyup', async () => {
+        const url = "/admin/tarjetas/filter?";
+        const queryParams = new URLSearchParams({numero: buscador.value}).toString();
+        try {
+            const response = await fetch(url + queryParams);
+            if (!response.ok) throw new Error(`Response status: ${response.status}`);
+
+            const html = await response.text();
+            document.querySelector('#listaTarjetas').innerHTML = html;
+        } catch (error) {
+            console.error(error.message);
+        }
+    })
+
 });

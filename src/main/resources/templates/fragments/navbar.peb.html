@@ -22,10 +22,9 @@
         {% endif %}
       </ul>
 
-      <form action="/public" class="d-flex me-3" method="get" role="search">
+      <form action="#" class="d-flex me-3" method="get" role="search">
         <input class="form-control" name="q" placeholder="{{ message('tarjetas.search') }}" type="search"
-               value="{{ q | default('') }}">
-        <button class="btn btn-outline-light ms-2" type="submit"><i class="bi bi-search"></i></button>
+               id="buscador" name="titulo">
       </form>
 
       <ul class="navbar-nav">
