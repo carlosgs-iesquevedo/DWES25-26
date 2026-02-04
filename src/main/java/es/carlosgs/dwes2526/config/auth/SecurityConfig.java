@@ -37,6 +37,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 public class SecurityConfig {
   private final UserDetailsService userDetailsService;
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
+  private final LoginSuccessHandler loginSuccessHandler;
 
   @Value("${api.version}")
   private String apiVersion;
@@ -129,7 +130,7 @@ public class SecurityConfig {
         .anyRequest().authenticated())
       .formLogin(form -> form
         .loginPage("/auth/login")
-        .defaultSuccessUrl("/public", true)  // ← SIN /index
+        .successHandler(loginSuccessHandler)  // para gestionar la cookie de visitas
         .loginProcessingUrl("/auth/login-post")
         .permitAll())
       .logout(logout -> logout

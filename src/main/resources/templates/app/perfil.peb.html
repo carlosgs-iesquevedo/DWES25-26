@@ -115,13 +115,17 @@
 
           <!-- Estadísticas -->
           <div class="row text-center">
-            <div class="col-6 border-end">
+            <div class="col-4 border-end">
               <strong class="d-block text-primary fs-3">{{ usuario.titular.tarjetas | length }}</strong>
               <small class="text-muted">Tarjetas</small>
             </div>
-            <div class="col-6">
+            <div class="col-4">
               <strong class="d-block text-success fs-3">32</strong>
               <small class="text-muted">Movimientos</small>
+            </div>
+            <div class="col-4">
+              <strong class="d-block text-success fs-3" id="visitas-count">32</strong>
+              <small class="text-muted">Visitas</small>
             </div>
           </div>
         </div>
@@ -131,4 +135,8 @@
   </div>
 </div>
 
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ href('/js/app-perfil.js') }}"></script>
 {% endblock %}
