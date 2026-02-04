@@ -18,8 +18,8 @@
     <td class="tarjetaId">{{ tarjeta.id }}</td>
     <td>{{ tarjeta.numero }} </td>
     <td>{{ tarjeta.cvc }}</td>
-    <td>{{ tarjeta.fechaCaducidad }}</td>
-    <td>{{ tarjeta.saldo }}</td>
+    <td>{{ tarjeta.fechaCaducidad  | formatDate }}</td>
+    <td>{{ tarjeta.saldo  | formatPrice }}</td>
     <td><a href="/admin/tarjetas/{{ tarjeta.id }}"><i class="bi bi-eye"></i></a>
       <a href="/admin/tarjetas/{{ tarjeta.id }}/edit"><i class="bi bi-pencil"></i></a>
       <a class="borrarTarjetaLink" href="#"><i class="bi bi-trash"></i></a>

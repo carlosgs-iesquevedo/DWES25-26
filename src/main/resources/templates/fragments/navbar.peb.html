@@ -22,10 +22,17 @@
         {% endif %}
       </ul>
 
+      {# ### Obtener el nombre de la plantilla actual sin la ruta completa #}
+      {% set plantilla = template.name | split('/') | last %}
+      {# ### Otra manera es usar templateName filter si está definido en PebbleConfig #}
+      {# ### set plantilla = template.name | templateName #}
+
+      {% if isAdmin and  plantilla == 'lista' %}
       <form action="#" class="d-flex me-3" method="get" role="search">
         <input class="form-control" name="q" placeholder="{{ message('tarjetas.search') }}" type="search"
                id="buscador" name="titulo">
       </form>
+      {% endif %}
 
       <ul class="navbar-nav">
         <!-- Language Switcher -->
