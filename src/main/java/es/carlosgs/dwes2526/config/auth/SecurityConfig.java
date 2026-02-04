@@ -124,7 +124,7 @@ public class SecurityConfig {
       //.csrf(AbstractHttpConfigurer::disable)
       .authorizeHttpRequests(auth -> auth
         .requestMatchers("/public", "/public/", "/public/**").permitAll()  // ← AÑADIR SIN /**
-        .requestMatchers("/", "/auth/**", "/webjars/**", "/css/**").permitAll()
+        .requestMatchers("/", "/auth/**", "/webjars/**", "/css/**", "/images/**").permitAll()
         .requestMatchers("/admin/**").hasRole("ADMIN")
         .anyRequest().authenticated())
       .formLogin(form -> form
