@@ -184,8 +184,7 @@ public class PebbleConfig {
       String fullPath = input.toString();
       try {
         String[] parts = fullPath.split("/");
-        String lastPart = parts[parts.length - 1];
-        return lastPart;
+        return parts[parts.length - 1]; // Devuelve la última parte del path
       } catch (Exception e) {
         return fullPath;
       }
