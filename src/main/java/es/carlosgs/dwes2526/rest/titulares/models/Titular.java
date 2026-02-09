@@ -38,9 +38,11 @@ public class Titular {
   // relación bidireccional de uno a muchos con Tarjeta
   @OneToMany(mappedBy = "titular")
   @JsonIgnoreProperties("titular")
+  @ToString.Exclude
   private List<Tarjeta> tarjetas;
 
   @OneToOne(mappedBy = "titular")
+  @ToString.Exclude
   private User usuario;
 
 }

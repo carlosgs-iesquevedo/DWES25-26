@@ -23,23 +23,18 @@ public class TarjetasController {
   private final TarjetasService tarjetasService;
   private final UsersService usersService;
 
-  // Inyectamos en el modelo automáticamente la lista de mis tarjetas
-  @ModelAttribute("tarjetas")
-  public List<Tarjeta> misTarjetas() {
-    String username = SecurityContextHolder.getContext().getAuthentication().getName();
-    Optional<User> usuario = usersService.findByUsername(username);
-    if (usuario.isEmpty()) {
-      return List.of();
-    }
-    return tarjetasService.buscarPorUsuarioId(usuario.get().getId());
-  }
-
   // Enviamos mis tarjetas a la vista lista
   @GetMapping("/mistarjetas")
-  public String list() {
+  public String misTarjetas(Model model) {
+    String username = SecurityContextHolder.getContext().getAuthentication().getName();
+    Optional<User> usuario = usersService.findByUsername(username);
+    List<Tarjeta> tarjetas = List.of();
+    if (usuario.isPresent()) {
+      tarjetas = tarjetasService.buscarPorUsuarioId(usuario.get().getId());
+    }
+    model.addAttribute("tarjetas", tarjetas);
     return "app/tarjetas/lista";
   }
-
 
   @GetMapping("/mistarjetas/{id}")
   public String getById(@PathVariable Long id, Model model) {
