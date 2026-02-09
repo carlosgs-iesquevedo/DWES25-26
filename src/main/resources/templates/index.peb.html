@@ -1,0 +1,24 @@
+{% extends "fragments/layout" %}
+
+{% block body %}
+
+<div class="container">
+  <div class="p-5 mb-4 bg-light rounded-3">
+    <h1 class="display-5 fw-bold">Gestión de Tarjetas</h1>
+    <p class="col-md-8 fs-4">Una aplicación de ejemplo de Spring MVC con Pebble.</p>
+    {% if isAuthenticated %}
+    <h1 class="display-4">Saludos, {{ username | default('Usuario') }} </h1>
+    {% else %}
+    <h1 class="display-4">Saludos, visitante</h1>
+    {% endif %}
+    <p class="text-center">
+      {% if isAdmin %}
+      <a class="btn btn-lg btn-primary" href="/admin/tarjetas">Ir al Panel de Administración</a>
+      {% else %}
+      <a class="btn btn-lg btn-success" href="/app/mistarjetas">Comenzar</a>
+      {% endif %}
+    </p>
+  </div>
+</div>
+
+{% endblock %}

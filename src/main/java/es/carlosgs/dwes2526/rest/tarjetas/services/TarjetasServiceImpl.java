@@ -32,6 +32,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -289,5 +290,16 @@ public class TarjetasServiceImpl implements TarjetasService, InitializingBean {
       log.error("Error al convertir la notificación a JSON", e);
     }
   }
+
+  @Override
+  public List<Tarjeta> buscarPorUsuarioId(Long usuarioId) {
+    return tarjetasRepository.findByUsuarioId(usuarioId);
+  }
+
+  @Override
+  public Optional<Tarjeta> buscarPorId(Long id) {
+    return tarjetasRepository.findById(id);
+  }
+
 
 }

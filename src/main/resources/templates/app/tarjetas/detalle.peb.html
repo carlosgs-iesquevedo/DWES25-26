@@ -1,0 +1,17 @@
+{% extends "fragments/layout" %}
+
+{% block body %}
+
+{% if tarjeta is empty %}
+<div class="alert alert-info text-center">
+  <i class="bi bi-info-circle"></i> {{ message('label.tarjeta.empty') }}
+</div>
+{% else %}
+<h2> {{ message('label.tarjeta.detalle') }} {{ tarjeta.id }}</h2>
+<ul>
+  <li> {{ message('label.tarjeta.numero') }}: {{ tarjeta.numero }}</li>
+  <li> {{ message('label.tarjeta.cvc') }}: {{ tarjeta.cvc }}</li>
+</ul>
+{% endif %}
+
+{% endblock %}

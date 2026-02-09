@@ -3,9 +3,11 @@ package es.carlosgs.dwes2526.rest.tarjetas.services;
 import es.carlosgs.dwes2526.rest.tarjetas.dto.TarjetaCreateDto;
 import es.carlosgs.dwes2526.rest.tarjetas.dto.TarjetaResponseDto;
 import es.carlosgs.dwes2526.rest.tarjetas.dto.TarjetaUpdateDto;
+import es.carlosgs.dwes2526.rest.tarjetas.models.Tarjeta;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface TarjetasService {
@@ -27,4 +29,7 @@ public interface TarjetasService {
   void deleteById(Long id);
   void deleteById(Long id, Long usuarioId);
 
+  // Servicios usados en la parte webapp
+  List<Tarjeta> buscarPorUsuarioId(Long usuarioId);
+  Optional<Tarjeta> buscarPorId(Long id);
 }

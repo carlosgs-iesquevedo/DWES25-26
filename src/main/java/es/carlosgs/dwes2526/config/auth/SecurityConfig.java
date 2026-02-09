@@ -37,6 +37,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 public class SecurityConfig {
   private final UserDetailsService userDetailsService;
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
+  private final LoginSuccessHandler loginSuccessHandler;
 
   @Value("${api.version}")
   private String apiVersion;
@@ -94,11 +95,11 @@ public class SecurityConfig {
   @Bean
   @Order(2)
   public SecurityFilterChain openapiFilterChain(HttpSecurity http) throws Exception {
+    String[] swaggerPaths = { "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html"};
     http
-        .securityMatcher("/swagger-ui/**")
-        .securityMatcher("/v3/api-docs/**")
-        .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll());
+      .securityMatcher(swaggerPaths)
+      .authorizeHttpRequests(auth -> auth
+            .requestMatchers(swaggerPaths).permitAll());
     return http.build();
   }
 
@@ -112,6 +113,30 @@ public class SecurityConfig {
             auth.requestMatchers(PathRequest.toH2Console()).permitAll())
         .csrf(csrf -> csrf.ignoringRequestMatchers(PathRequest.toH2Console()))
         .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable));
+    return http.build();
+  }
+
+  // Este filtro permite el acceso a la consola de H2. Quitar en producción
+  @Bean
+  @Order(4)
+  public SecurityFilterChain formLoginFilterChain(HttpSecurity http) throws Exception {
+    http
+      // Dejamos habilitado CSRF cuando tengamos los formularios con csrfToken
+      //.csrf(AbstractHttpConfigurer::disable)
+      .authorizeHttpRequests(auth -> auth
+        .requestMatchers("/public", "/public/", "/public/**").permitAll()  // ← AÑADIR SIN /**
+        .requestMatchers("/", "/auth/**", "/webjars/**", "/css/**", "/images/**").permitAll()
+        .requestMatchers("/admin/**").hasRole("ADMIN")
+        .anyRequest().authenticated())
+      .formLogin(form -> form
+        .loginPage("/auth/login")
+        .successHandler(loginSuccessHandler)  // para gestionar la cookie de visitas
+        .loginProcessingUrl("/auth/login-post")
+        .permitAll())
+      .logout(logout -> logout
+        .logoutUrl("/auth/logout")
+        .logoutSuccessUrl("/public")  // ← SIN /index
+        .permitAll());
     return http.build();
   }
 

@@ -50,6 +50,15 @@ INSERT INTO TARJETAS (numero, cvc, fecha_caducidad, titular_id, saldo, uuid)
     VALUES ('1234-5678-1234-5678', '555', '2025-12-31', 2, 100.0, UUID());
 INSERT INTO TARJETAS (numero, cvc, fecha_caducidad, titular_id, saldo, uuid)
     VALUES ('4321-5678-1234-5678', '234', '2025-12-31', 3, 200.0, UUID());
+INSERT INTO TARJETAS (numero, cvc, fecha_caducidad, titular_id, saldo, uuid)
+VALUES ('1234-5678-1234-5679', '123', '2025-12-31', 1, 100.0, UUID());
+INSERT INTO TARJETAS (numero, cvc, fecha_caducidad, titular_id, saldo, uuid)
+VALUES ('4321-5678-1234-5680', '124', '2025-12-31', 2, 200.0, UUID());
+INSERT INTO TARJETAS (numero, cvc, fecha_caducidad, titular_id, saldo, uuid)
+VALUES ('1234-5678-1234-5681', '125', '2025-12-31', 3, 100.0, UUID());
+INSERT INTO TARJETAS (numero, cvc, fecha_caducidad, titular_id, saldo, uuid)
+VALUES ('4321-5678-1234-5682', '126', '2025-12-31', 1, 200.0, UUID());
+
 
 -- Datos de ejemplo USUARIOS
 -- Contraseña: Admin1

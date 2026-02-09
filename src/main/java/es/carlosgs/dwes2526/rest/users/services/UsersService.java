@@ -24,4 +24,7 @@ public interface UsersService {
 
   List<User> findAllActiveUsers();
 
+  // Servicios usados en la parte webapp
+  Optional<User> findByUsername(String username);
+  void save(User user);
 }

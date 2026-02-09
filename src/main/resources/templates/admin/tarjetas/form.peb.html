@@ -1,0 +1,29 @@
+{% extends "fragments/layout" %}
+
+{% import "fragments/inputField" %}
+
+{% block body %}
+
+<h2>{% if not modoEditar %}Nueva {% endif %} Tarjeta</h2>
+<form class="form-horizontal" id="add-tarjeta-form" method="post"
+      action="{% if modoEditar %}/admin/tarjetas/{{tarjetaId}}/edit{% else %}/admin/tarjetas/new{% endif %}">
+  <input name="{{ csrfParamName }}" type="hidden" value="{{ csrfToken }}">
+  <div class="form-group has-feedback">
+    {{ inputField("tarjeta", "Número", "numero", "text", tarjeta.numero, _context) }}
+    {{ inputField("tarjeta", "CVC", "cvc", "text", tarjeta.cvc, _context) }}
+    {{ inputField("tarjeta", "Fecha de caducidad", "fechaCaducidad", "date", tarjeta.fechaCaducidad, _context) }}
+    {{ inputField("tarjeta", "Saldo", "saldo", "number", tarjeta.saldo, _context) }}
+    {% if not modoEditar %}
+    {{ inputField("tarjeta", "Titular", "titular", "text", tarjeta.titular, _context) }}
+    {% endif %}
+  </div>
+  <div class="form-group">
+    <div class="col-sm-offset-2 col-sm-10">
+      <button
+        class="btn btn-primary" type="submit">{{ modoEditar ? 'Actualizar Tarjeta' : 'Añadir Tarjeta' }}
+      </button>
+    </div>
+  </div>
+</form>
+
+{% endblock %}

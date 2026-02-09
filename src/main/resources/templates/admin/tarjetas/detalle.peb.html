@@ -1,0 +1,35 @@
+{% extends "fragments/layout" %}
+
+{% block body %}
+
+<div class="row">
+  <div class="col-12">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1>
+        <i class="bi bi-credit-card-2-front"></i> {{ message('label.tarjeta.detalle') }} {{ tarjeta.id }}
+      </h1>
+      <a href="/admin/tarjetas" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Volver
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-12">
+    {% include "fragments/messages" %}
+  </div>
+</div>
+
+{% if tarjeta is empty %}
+<div class="alert alert-info text-center">
+  <i class="bi bi-info-circle"></i> {{ message('label.tarjeta.empty') }}
+</div>
+{% else %}
+<ul>
+  <li> {{ message('label.tarjeta.numero') }}: {{ tarjeta.numero }}</li>
+  <li> {{ message('label.tarjeta.cvc') }}: {{ tarjeta.cvc }}</li>
+</ul>
+{% endif %}
+
+{% endblock %}
