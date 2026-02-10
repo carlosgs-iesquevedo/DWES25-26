@@ -10,7 +10,11 @@ services:
       - SPRING_PROFILES_ACTIVE=prod
   db:
     image: postgres:18-alpine
+    ports:
+      - "5432:5432"
     environment:
       POSTGRES_DB: miapp
       POSTGRES_USER: user
       POSTGRES_PASSWORD: pass
+    volumes:
+      - ./postgresql-init/data.sql:/docker-entrypoint-initdb.d/data.sql
