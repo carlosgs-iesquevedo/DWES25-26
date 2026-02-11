@@ -25,9 +25,11 @@ create table titulares (
                          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP not null
 );
 
+create type user_role_enum as enum ('ADMIN','USER');
+
 create table user_roles (
                           user_id bigint not null,
-                          roles enum ('ADMIN','USER')
+                          roles user_role_enum
 );
 
 create table usuarios (
