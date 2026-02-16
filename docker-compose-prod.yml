@@ -1,9 +1,9 @@
-name: DWES25-26
+name: dwes2526
 
 services:
   app:
     build: .
-    container_name: app
+    container_name: dwes2526-app
     ports:
       - "8080:3000"
     environment:
@@ -12,6 +12,7 @@ services:
       - db
   db:
     image: postgres:18-alpine
+    container_name: dwes2526-db
     ports:
       - "5432:5432"
     environment:
