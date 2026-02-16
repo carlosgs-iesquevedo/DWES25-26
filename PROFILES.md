@@ -83,8 +83,8 @@ mvnw package -Pprod
 ### Empaquetar con comando mvn ejecutado desde imagen docker
 Se puede ejecutar el comando mvn desde una imagen que contenga los binarios de maven
 ```
-docker pull maven:4.0.0-rc-5-eclipse-temurin-25-alpine
-docker run -it --rm --name my-maven-project -v "$(pwd)":/build -w /build maven:4.0.0-rc-5-eclipse-temurin-25-alpine mvn package
+docker pull maven:3-eclipse-temurin-25-alpine
+docker run -it --rm -v "$PWD":/build -v "$HOME/.m2":/root/.m2 -v "$PWD/target:/build/target" -w /build maven:3-eclipse-temurin-25-alpine mvn package -DskipTests
 ```
 
 ### Empaquetar (generar el jar) con maven desde Panel maven de IntelliJ
